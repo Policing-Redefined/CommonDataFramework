@@ -52,6 +52,7 @@
         <Compile Include="Modules\PedDatabase\PedDataController.cs" />
         <Compile Include="Modules\PedDatabase\Permits.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Utility\Extensions\PersonaExtensions.cs" />
         <Compile Include="Utility\GlobalUsings.cs" />
         <Compile Include="Utility\Helper.cs" />
         <Compile Include="Utility\Helpers\DateTimeHelper.cs" />
