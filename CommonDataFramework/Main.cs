@@ -1,4 +1,5 @@
 ﻿using System;
+using CommonDataFramework.Modules.PedDatabase;
 using LSPD_First_Response.Mod.API;
 
 namespace CommonDataFramework;
@@ -6,10 +7,26 @@ namespace CommonDataFramework;
 /// <summary/>
 public class EntryPoint : Plugin
 {
+    internal static bool OnDuty { get; private set; }
+    
     /// <summary/>
     public override void Initialize()
     {
-        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
+        LSPDFRFunctions.OnOnDutyStateChanged += LSPDFRFunctions_OnOnDutyStateChanged;
+    }
+
+    private static void LSPDFRFunctions_OnOnDutyStateChanged(bool onDuty)
+    {
+        OnDuty = onDuty;
+
+        if (onDuty)
+        {
+            LoadSystems();
+        }
+        else
+        {
+            UnloadSystems();
+        }
     }
 
     /// <summary/>
@@ -17,10 +34,19 @@ public class EntryPoint : Plugin
     {
         // ignored
     }
+
+    private static void LoadSystems()
+    {
+        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
+        PedDataController.Start();
+        LogDebug($"Loaded Systems of V{PluginVersion}.");
+    }
     
     private static void UnloadSystems()
     {
-        
+        AppDomain.CurrentDomain.DomainUnload -= DomainUnload;
+        PedDataController.Stop();
+        LogDebug($"Unloaded Systems of V{PluginVersion}.");
     }
 
     private static void DomainUnload(object sender, EventArgs e)

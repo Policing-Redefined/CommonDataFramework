@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommonDataFramework.Utility;
+namespace CommonDataFramework.Engine.Utility;
 
 // Rohit said he wanted credit. So credit to Rohit for the code https://github.com/Rohit685/MysteriousCallouts/blob/master/HelperSystems/Logger.cs
 internal static class Logger

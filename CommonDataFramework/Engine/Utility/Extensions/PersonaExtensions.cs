@@ -1,6 +1,6 @@
 ﻿using LSPD_First_Response.Engine.Scripting.Entities;
 
-namespace CommonDataFramework.Utility.Extensions;
+namespace CommonDataFramework.Engine.Utility.Extensions;
 
 internal static class PersonaExtensions
 {

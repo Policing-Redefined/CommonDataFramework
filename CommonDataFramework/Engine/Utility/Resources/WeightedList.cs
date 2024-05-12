@@ -6,9 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using static CommonDataFramework.Utility.Resources.WeightErrorHandlingType;
+using static CommonDataFramework.Engine.Utility.Resources.WeightErrorHandlingType;
 
-namespace CommonDataFramework.Utility.Resources;
+namespace CommonDataFramework.Engine.Utility.Resources;
 
 /// <summary>
 /// This implements an algorithm for sampling from a discrete probability distribution via a generic list
