@@ -10,7 +10,7 @@ namespace CommonDataFramework.Modules;
 /// </summary>
 public class PedRecord
 {
-    private readonly Persona _persona;
+    internal Persona Persona { get; private set; }
     
     /// <summary>
     /// The expiration date of the ped's drivers license (if the ped owns one).
@@ -25,7 +25,7 @@ public class PedRecord
     /// <seealso cref="ELicenseState"/>
     public ELicenseState DriversLicenseState
     {
-        get => _persona.ELicenseState;
+        get => Persona.ELicenseState;
         set => SetDriversLicenseState(value);
     }
     
@@ -34,8 +34,8 @@ public class PedRecord
     /// </summary>
     public string Firstname
     {
-        get => _persona.Forename;
-        set => _persona.Forename = value;
+        get => Persona.Forename;
+        set => Persona.Forename = value;
     }
 
     /// <summary>
@@ -43,37 +43,37 @@ public class PedRecord
     /// </summary>
     public string Lastname
     {
-        get => _persona.Surname;
-        set => _persona.Surname = value;
+        get => Persona.Surname;
+        set => Persona.Surname = value;
     }
     
     /// <summary>
     /// Returns the full name of the ped.
     /// </summary>
-    public string FullName => _persona.FullName;
+    public string FullName => Persona.FullName;
 
     /// <summary>
     /// Gets or sets the birthday of the ped.
     /// </summary>
     public DateTime Birthday
     {
-        get => _persona.Birthday;
-        set => _persona.Birthday = value;
+        get => Persona.Birthday;
+        set => Persona.Birthday = value;
     }
 
     // TODO 'GiveCitationToPed'
     /// <summary>
     /// Gets the amount of citations the ped has received.
     /// </summary>
-    public int Citations => _persona.Citations;
+    public int Citations => Persona.Citations;
     
     /// <summary>
     /// Gets or sets the amount of times the ped was stopped.
     /// </summary>
     public int TimesStopped
     {
-        get => _persona.TimesStopped;
-        set => _persona.TimesStopped = value;
+        get => Persona.TimesStopped;
+        set => Persona.TimesStopped = value;
     }
 
     /// <summary>
@@ -81,8 +81,8 @@ public class PedRecord
     /// </summary>
     public Gender Gender
     {
-        get => _persona.Gender;
-        set => _persona.Gender = value;
+        get => Persona.Gender;
+        set => Persona.Gender = value;
     }
 
     /// <summary>
@@ -90,8 +90,8 @@ public class PedRecord
     /// </summary>
     public bool Wanted
     {
-        get => _persona.Wanted;
-        set => _persona.Wanted = value;
+        get => Persona.Wanted;
+        set => Persona.Wanted = value;
     }
 
     /// <summary>
@@ -99,15 +99,15 @@ public class PedRecord
     /// </summary>
     public string AdvisoryText
     {
-        get => _persona.AdvisoryText;
-        set => _persona.AdvisoryText = value;
+        get => Persona.AdvisoryText;
+        set => Persona.AdvisoryText = value;
     }
 
     /// <summary>
     /// Gets the model age of this ped.
     /// </summary>
     /// <seealso cref="PedModelAge"/>
-    public PedModelAge ModelAge => _persona.ModelAge;
+    public PedModelAge ModelAge => Persona.ModelAge;
 
     /// <summary>
     /// Gets or sets the runtime information for this ped.
@@ -115,19 +115,24 @@ public class PedRecord
     /// <seealso cref="RuntimePersonaInformation"/>
     public RuntimePersonaInformation RuntimeInfo
     {
-        get => _persona.RuntimeInfo;
-        set => _persona.RuntimeInfo = value;
+        get => Persona.RuntimeInfo;
+        set => Persona.RuntimeInfo = value;
     }
 
     /// <summary>
     /// Gets the wanted information for this ped.
     /// </summary>
     /// <seealso cref="WantedInformation"/>
-    public WantedInformation WantedInfo => _persona.WantedInformation;
+    public WantedInformation WantedInfo => Persona.WantedInformation;
+
+    protected PedRecord()
+    {
+        
+    }
     
     internal PedRecord(Persona persona)
     {
-        _persona = persona;
+        Persona = persona;
         HandleDriversLicenseExpiration();
     }
     
@@ -135,23 +140,22 @@ public class PedRecord
     /// Returns a string containing fullname and date of birth of the ped.
     /// </summary>
     /// <returns>The string with fullname and birthday combined.</returns>
-    public string ToNameAndDOBString() => _persona.ToNameAndDOBString();
+    public string ToNameAndDOBString() => Persona.ToNameAndDOBString();
 
-    /// <summary>
-    /// Changes the status of the ped's license and updates the expiration date of the license accordingly.
-    /// </summary>
-    /// <param name="licenseState">The new status of the ped's license.</param>
-    /// <seealso cref="ELicenseState"/>
-    /// <seealso cref="DriversLicenseExpiration"/>
+    internal void ForceSetPersona(Persona persona)
+    {
+        Persona = persona;
+    }
+    
     private void SetDriversLicenseState(ELicenseState licenseState)
     {
-        _persona.ELicenseState = licenseState;
+        Persona.ELicenseState = licenseState;
         HandleDriversLicenseExpiration();
     }
 
     private void HandleDriversLicenseExpiration()
     {
-        switch (_persona.ELicenseState)
+        switch (Persona.ELicenseState)
         {
             case ELicenseState.Suspended:
             case ELicenseState.Expired:

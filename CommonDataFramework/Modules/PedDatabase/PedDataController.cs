@@ -82,7 +82,7 @@ internal static class PedDataController
         }
         catch (Exception exception)
         {
-            LogException(exception, "PedDataController.cs");
+            LogException(exception, "PedDataController.cs: Process");
             DisplayErrorNotification();
         }
     }
