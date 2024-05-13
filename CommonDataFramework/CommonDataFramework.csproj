@@ -59,6 +59,7 @@
         <Compile Include="Modules\PedDatabase\PedData.cs" />
         <Compile Include="Modules\PedDatabase\PedDataController.cs" />
         <Compile Include="Modules\PedDatabase\Permits.cs" />
+        <Compile Include="Modules\PedRecord.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
