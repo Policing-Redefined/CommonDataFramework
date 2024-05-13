@@ -51,13 +51,13 @@ internal static class PedDataController
         if (pedData.IsScheduledForDeletion) return;
         pedData.IsScheduledForDeletion = true;
 
-        LogDebug($"PedDataController: Scheduled '{pedData.Record.FullName}' for deletion (Time: {timeUntil / 1000}s).");
+        LogDebug($"PedDataController: Scheduled '{pedData.FullName}' for deletion (Time: {timeUntil / 1000}s).");
         GameFiber deletion = GameFiber.StartNew(() =>
         {
             GameFiber.Sleep(timeUntil);
             Database.Remove(pedData.Holder);
             DeletionQueue.Remove(pedData.Holder);
-            LogDebug($"PedDataController: '{pedData.Record.FullName}' was deleted.");
+            LogDebug($"PedDataController: '{pedData.FullName}' was deleted.");
         });
 
         DeletionQueue[pedData.Holder] = deletion;
