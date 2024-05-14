@@ -125,6 +125,9 @@ public class PedRecord
     /// <seealso cref="WantedInformation"/>
     public WantedInformation WantedInfo => Persona.WantedInformation;
 
+    /// <summary>
+    /// Empty constructor for creating an instance without providing a persona right away.
+    /// </summary>
     protected PedRecord()
     {
         
