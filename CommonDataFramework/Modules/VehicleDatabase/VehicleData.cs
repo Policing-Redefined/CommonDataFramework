@@ -20,6 +20,9 @@ public class VehicleData
     public readonly VehicleOwner Owner;
 
     private string _licensePlate = "UNKNOWN"; // License plate cache
+    
+    
+    
     /// <summary>
     /// Gets the license plate of this vehicle.
     /// </summary>

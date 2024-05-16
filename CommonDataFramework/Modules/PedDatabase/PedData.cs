@@ -12,7 +12,7 @@ public class PedData
 {
     internal readonly Ped Holder;
     
-     internal Persona Persona { get; private set; }
+    internal Persona Persona { get; private set; }
     
     /// <summary>
     /// The expiration date of the ped's drivers license (if the ped owns one).
@@ -126,12 +126,6 @@ public class PedData
     /// </summary>
     /// <seealso cref="WantedInformation"/>
     public WantedInformation WantedInfo => Persona.WantedInformation;
-
-    /// <summary>
-    /// Empty constructor for creating an instance without providing a persona right away.
-    /// </summary>
-    
-    
     
     /// <summary>
     /// Once the ped that owns this ped data stops existing, the ped data is scheduled for deletion.
@@ -157,6 +151,11 @@ public class PedData
     /// <seealso cref="WeaponPermit"/>
     public readonly WeaponPermit WeaponPermit;
 
+    
+    /// <summary>
+    /// Empty constructor for creating an instance without providing a persona or Ped right away.
+    /// </summary>
+    
     protected PedData()
     {
         HuntingPermit = new Permit();
