@@ -40,5 +40,6 @@ public class VehicleData
     {
         Holder = vehicle;
         Owner = new VehicleOwner(vehicle);
+        VehicleDataController.Database.Add(vehicle, this);
     }
 }

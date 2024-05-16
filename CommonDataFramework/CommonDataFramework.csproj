@@ -61,7 +61,6 @@
         <Compile Include="Modules\PedDatabase\PedData.cs" />
         <Compile Include="Modules\PedDatabase\PedDataController.cs" />
         <Compile Include="Modules\PedDatabase\Permits.cs" />
-        <Compile Include="Modules\PedRecord.cs" />
         <Compile Include="Modules\VehicleDatabase\VehicleData.cs" />
         <Compile Include="Modules\VehicleDatabase\VehicleDataController.cs" />
         <Compile Include="Modules\VehicleDatabase\VehicleOwner.cs" />

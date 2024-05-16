@@ -10,7 +10,7 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 /// <summary>
 /// Represents the owner of a <see cref="VehicleData"/> entry.
 /// </summary>
-public class VehicleOwner : PedRecord
+public class VehicleOwner : PedData
 {
     private static readonly WeightedList<EVehicleOwnerType> VehicleOwnerTypes = new(new List<WeightedListItem<EVehicleOwnerType>>
     {
@@ -62,10 +62,10 @@ public class VehicleOwner : PedRecord
     /// <summary>
     /// Attempts to manually set the owner.
     /// </summary>
-    /// <param name="pedRecord">The ped record to use.</param>
+    /// <param name="pedData">The ped record to use.</param>
     /// <returns>Whether the attempt was successful.</returns>
-    /// <seealso cref="PedRecord"/>
-    public bool TrySetOwner(PedRecord pedRecord) => SetVehicleOwner(EVehicleOwnerType.Manual, pedRecord.Persona);
+    /// <seealso cref="PedData"/>
+    public bool TrySetOwner(PedData pedData) => SetVehicleOwner(EVehicleOwnerType.Manual, pedData.Persona);
 
     private bool SetVehicleOwner(EVehicleOwnerType? ownerType, Persona persona = null)
     {
@@ -224,7 +224,7 @@ public enum EVehicleOwnerType
     Company,
     
     /// <summary>
-    /// This vehicles owner <see cref="PedRecord"/> has been set manually.
+    /// This vehicles owner <see cref="PedData"/> has been set manually.
     /// </summary>
     Manual
 }

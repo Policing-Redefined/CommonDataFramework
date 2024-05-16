@@ -8,19 +8,21 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 
 internal static class VehicleDataController
 {
-    private static readonly Dictionary<Vehicle, VehicleData> Database = new();
+    internal static readonly Dictionary<Vehicle, VehicleData> Database = new();
     private static readonly Dictionary<Vehicle, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
     internal static VehicleData GetVehicleData(this Vehicle vehicle)
     {
-        if (Database.TryGetValue(vehicle, out VehicleData pedData)) return pedData;
         if (!vehicle.Exists()) return null;
-
-        VehicleData newData = new(vehicle);
-        Database[vehicle] = newData;
-
-        return newData;
+        if (Database.TryGetValue(vehicle, out VehicleData vehData))
+        {
+            return vehData;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     internal static void Start()

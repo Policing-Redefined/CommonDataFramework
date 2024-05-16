@@ -8,19 +8,21 @@ namespace CommonDataFramework.Modules.PedDatabase;
 
 internal static class PedDataController
 {
-    private static readonly Dictionary<Ped, PedData> Database = new();
+    internal static readonly Dictionary<Ped, PedData> Database = new();
     private static readonly Dictionary<Ped, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
     internal static PedData GetPedData(this Ped ped)
     {
-        if (Database.TryGetValue(ped, out PedData pedData)) return pedData;
         if (!ped.Exists()) return null;
-
-        PedData newData = new(ped);
-        Database[ped] = newData;
-
-        return newData;
+        if (Database.TryGetValue(ped, out PedData pedData))
+        {
+            return pedData;
+        }
+        else
+        {
+            return null;    
+        }
     }
 
     internal static void Start()
