@@ -5,7 +5,7 @@
 /// </summary>
 public class VehicleData
 {
-    internal readonly Vehicle Holder;
+    public readonly Vehicle Holder;
     
     /// <summary>
     /// Once the vehicle that owns this vehicle data stops existing, the vehicle data is scheduled for deletion.
@@ -39,7 +39,7 @@ public class VehicleData
         }
     }
     
-    internal VehicleData(Vehicle vehicle)
+    public VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;
         Owner = new VehicleOwner(vehicle);

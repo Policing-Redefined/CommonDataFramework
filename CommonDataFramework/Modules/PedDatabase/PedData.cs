@@ -10,9 +10,9 @@ namespace CommonDataFramework.Modules.PedDatabase;
 /// </summary>
 public class PedData
 {
-    internal readonly Ped Holder;
+    public readonly Ped Holder;
     
-    internal Persona Persona { get; private set; }
+    public Persona Persona { get; private set; }
     
     /// <summary>
     /// The expiration date of the ped's drivers license (if the ped owns one).
@@ -163,7 +163,7 @@ public class PedData
         WeaponPermit = new WeaponPermit();
     }
 
-    internal PedData(Ped holder) : this()
+    public PedData(Ped holder) : this()
     {
         Holder = holder;
         Persona = LSPDFRFunctions.GetPersonaForPed(holder).Clone();
@@ -171,7 +171,7 @@ public class PedData
         PedDataController.Database.Add(holder, this);
     }
 
-    internal PedData(Persona persona) : this()
+    public PedData(Persona persona) : this()
     {
         Holder = null;
         Persona = persona;
