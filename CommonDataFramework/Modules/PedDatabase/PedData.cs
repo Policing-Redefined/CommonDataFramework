@@ -10,9 +10,18 @@ namespace CommonDataFramework.Modules.PedDatabase;
 /// </summary>
 public class PedData
 {
-    public readonly Ped Holder;
+    internal Persona Persona { get; private set; }
     
-    public Persona Persona { get; private set; }
+    /// <summary>
+    /// The ped this data belongs to.
+    /// </summary>
+    public readonly Ped Holder;
+
+    /// <summary>
+    /// Returns whether this data has an actual ped that exists or has existed.
+    /// False if <see cref="Holder"/> is null.
+    /// </summary>
+    public bool HasRealPed => Holder != null;
     
     /// <summary>
     /// The expiration date of the ped's drivers license (if the ped owns one).
@@ -155,44 +164,42 @@ public class PedData
     /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
-    
-    protected PedData()
+    internal PedData()
     {
         HuntingPermit = new Permit();
         FishingPermit = new Permit();
         WeaponPermit = new WeaponPermit();
     }
 
-    public PedData(Ped holder) : this()
+    internal PedData(Ped holder) : this()
     {
         Holder = holder;
         Persona = LSPDFRFunctions.GetPersonaForPed(holder).Clone();
-        HandleDriversLicenseExpiration();
+        HandlePersonaUpdate();
         PedDataController.Database.Add(holder, this);
     }
-
-    public PedData(Persona persona) : this()
-    {
-        Holder = null;
-        Persona = persona;
-        HandleDriversLicenseExpiration();
-    }
     
+    /// <summary>
+    /// Combines the full name and birthday of this ped data into a string.
+    /// </summary>
+    /// <returns>The string with fullname and date of birth.</returns>
     public string ToNameAndDOBString() => Persona.ToNameAndDOBString();
 
     internal void ForceSetPersona(Persona persona)
     {
         Persona = persona;
+        HandlePersonaUpdate();
     }
     
     private void SetDriversLicenseState(ELicenseState licenseState)
     {
         Persona.ELicenseState = licenseState;
-        HandleDriversLicenseExpiration();
+        HandlePersonaUpdate();
     }
 
-    private void HandleDriversLicenseExpiration()
+    private void HandlePersonaUpdate()
     {
+        // Update drivers license
         switch (Persona.ELicenseState)
         {
             case ELicenseState.Suspended:
@@ -208,5 +215,7 @@ public class PedData
                 DriversLicenseExpiration = null;
                 break;
         }
+        
+        // ...room for more
     }
 }

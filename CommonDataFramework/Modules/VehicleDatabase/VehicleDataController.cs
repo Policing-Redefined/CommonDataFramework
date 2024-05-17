@@ -14,15 +14,13 @@ internal static class VehicleDataController
 
     internal static VehicleData GetVehicleData(this Vehicle vehicle)
     {
-        if (!vehicle.Exists()) return null;
         if (Database.TryGetValue(vehicle, out VehicleData vehData))
         {
             return vehData;
         }
-        else
-        {
-            return null;
-        }
+
+        // Check PedDataController.cs: GetPedData for further info on this method.
+        return !vehicle.Exists() ? null : new VehicleData(vehicle);
     }
 
     internal static void Start()

@@ -35,8 +35,8 @@ public class VehicleOwner : PedData
         get
         {
             // Check if the vehicle was marked as stolen after this data has been generated and needs to updated.
-            if (Reference.Exists() && Reference.IsStolen && _ownerType != EVehicleOwnerType.RandomPed &&
-                _ownerType != EVehicleOwnerType.Manual)
+            if (Reference.Exists() && Reference.IsStolen && !Reference.Model.IsLawEnforcementVehicle // If it is a government vehicle, then don't change the vehicle owner
+                && _ownerType != EVehicleOwnerType.RandomPed && _ownerType != EVehicleOwnerType.Manual)
             {
                 SetVehicleOwner(null);
             }
@@ -72,15 +72,7 @@ public class VehicleOwner : PedData
         // No owner type was specified, so let's do some base checks first before creating a random one or using the provided one.
         if (ownerType == null && Reference.Exists())
         {
-            if (Reference.IsStolen) // This vehicle owner must be a random ped.
-            {
-                // TODO handle stolen government vehicles
-                ForceSetPersona(PersonaHelper.GenerateNewPersona());
-                _ownerType = EVehicleOwnerType.RandomPed;
-                return true;
-            }
-            
-            if (Reference.Model.IsEmergencyVehicle) // This vehicle is owned by the government.
+            if (Reference.Model.IsEmergencyVehicle) // This vehicle is owned by the government (priority over the stolen check).
             {
                 Persona gov = PersonaHelper.GenerateNewPersona();
                 gov.Forename = "";
@@ -91,6 +83,13 @@ public class VehicleOwner : PedData
                 ForceSetPersona(gov);
                 _ownerType = EVehicleOwnerType.Government;
                 
+                return true;
+            }
+            
+            if (Reference.IsStolen) // This vehicle owner must be a random ped.
+            {
+                ForceSetPersona(PersonaHelper.GenerateNewPersona());
+                _ownerType = EVehicleOwnerType.RandomPed;
                 return true;
             }
         }
@@ -110,16 +109,16 @@ public class VehicleOwner : PedData
             return false;
         }
 
-        // We are manually setting the owner.
+        // We are manually setting the owner
         if (owner == EVehicleOwnerType.Manual)
         {
-            if (persona == null) // A persona must be provided.
+            if (persona == null) // A persona must be provided
             {
                 return false;
             }
             
             _ownerType = owner;
-            ForceSetPersona(persona); // No need to clone as this is only ever through PedRecord, which already cloned the Persona.
+            ForceSetPersona(persona); // No need to clone as this is only ever through PedData, which already cloned the Persona
             return true;
         }
 

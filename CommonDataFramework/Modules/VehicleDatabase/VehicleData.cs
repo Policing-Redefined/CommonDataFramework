@@ -5,6 +5,9 @@
 /// </summary>
 public class VehicleData
 {
+    /// <summary>
+    /// The vehicle this data belongs do.
+    /// </summary>
     public readonly Vehicle Holder;
     
     /// <summary>
@@ -19,10 +22,7 @@ public class VehicleData
     /// <seealso cref="VehicleOwner"/>
     public readonly VehicleOwner Owner;
 
-    private string _licensePlate = "UNKNOWN"; // License plate cache
-    
-    
-    
+    private string _licensePlate; // License plate cache
     /// <summary>
     /// Gets the license plate of this vehicle.
     /// </summary>
@@ -39,9 +39,10 @@ public class VehicleData
         }
     }
     
-    public VehicleData(Vehicle vehicle)
+    internal VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;
+        _licensePlate = vehicle.LicensePlate;
         Owner = new VehicleOwner(vehicle);
         VehicleDataController.Database.Add(vehicle, this);
     }

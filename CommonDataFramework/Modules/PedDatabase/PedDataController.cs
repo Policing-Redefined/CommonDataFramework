@@ -14,15 +14,14 @@ internal static class PedDataController
 
     internal static PedData GetPedData(this Ped ped)
     {
-        if (!ped.Exists()) return null;
+        // No need for a .Exists check here as we might still have it cached even though it's scheduled for deletion.
         if (Database.TryGetValue(ped, out PedData pedData))
         {
             return pedData;
         }
-        else
-        {
-            return null;    
-        }
+        
+        // Only create new data for a human (!) ped if it exists.
+        return (!ped.Exists() || !ped.IsHuman) ? null : new PedData(ped);
     }
 
     internal static void Start()
