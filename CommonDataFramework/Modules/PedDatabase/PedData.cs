@@ -72,11 +72,14 @@ public class PedData
         set => Persona.Birthday = value;
     }
 
-    // TODO 'GiveCitationToPed'
     /// <summary>
-    /// Gets the amount of citations the ped has received.
+    /// Gets or sets the amount of citations the ped has received.
     /// </summary>
-    public int Citations => Persona.Citations;
+    public int Citations
+    {
+        get => Persona.Citations;
+        set => Persona.Citations = value;
+    }
     
     /// <summary>
     /// Gets or sets the amount of times the ped was stopped.
@@ -137,11 +140,15 @@ public class PedData
     public WantedInformation WantedInfo => Persona.WantedInformation;
     
     /// <summary>
-    /// Once the ped that owns this ped data stops existing, the ped data is scheduled for deletion.
-    /// This field is set to 'true' once the ped data is scheduled for deletion.
+    /// Gets or sets whether the ped is on parole.
     /// </summary>
-    public bool IsScheduledForDeletion { get; internal set; }
-
+    public bool IsOnParole { get; set; }
+    
+    /// <summary>
+    /// Gets or sets whether the ped is on probation.
+    /// </summary>
+    public bool IsOnProbation { get; set; }
+    
     /// <summary>
     /// The hunting permit of the ped.
     /// </summary>
@@ -159,7 +166,12 @@ public class PedData
     /// </summary>
     /// <seealso cref="WeaponPermit"/>
     public readonly WeaponPermit WeaponPermit;
-
+    
+    /// <summary>
+    /// Once the ped that owns this ped data stops existing, the ped data is scheduled for deletion.
+    /// This field is set to 'true' once the ped data is scheduled for deletion.
+    /// </summary>
+    public bool IsScheduledForDeletion { get; internal set; }
     
     /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
@@ -193,6 +205,7 @@ public class PedData
     
     private void SetDriversLicenseState(ELicenseState licenseState)
     {
+        if (DriversLicenseState == licenseState) return; // Don't update it if it's already that state.
         Persona.ELicenseState = licenseState;
         HandlePersonaUpdate();
     }

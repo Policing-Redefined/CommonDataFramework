@@ -6,13 +6,26 @@ using CommonDataFramework.Engine.Utility.Extensions;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
 
-internal static class VehicleDataController
+/// <summary>
+/// Controls and stores vehicle data.
+/// </summary>
+public static class VehicleDataController
 {
     internal static readonly Dictionary<Vehicle, VehicleData> Database = new();
     private static readonly Dictionary<Vehicle, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
-    internal static VehicleData GetVehicleData(this Vehicle vehicle)
+    /// <summary>
+    /// Gets or creates data for the specified vehicle.
+    /// </summary>
+    /// <param name="vehicle">The vehicle to get data for.</param>
+    /// <returns>
+    /// An object containing the vehicle data.
+    /// Can be null if the provided vehicle does not exist and no previous data was stored for it.
+    /// </returns>
+    /// <seealso cref="VehicleData"/>
+    /// <seealso cref="CommonDataFramework.Modules.PedDatabase.PedDataController.GetPedData"/>
+    public static VehicleData GetVehicleData(this Vehicle vehicle)
     {
         if (Database.TryGetValue(vehicle, out VehicleData vehData))
         {

@@ -6,13 +6,27 @@ using CommonDataFramework.Engine.Utility.Extensions;
 
 namespace CommonDataFramework.Modules.PedDatabase;
 
-internal static class PedDataController
+/// <summary>
+/// Controls and stores ped data.
+/// </summary>
+public static class PedDataController
 {
     internal static readonly Dictionary<Ped, PedData> Database = new();
     private static readonly Dictionary<Ped, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
-    internal static PedData GetPedData(this Ped ped)
+    /// <summary>
+    /// Gets or creates data for the specified ped.
+    /// </summary>
+    /// <param name="ped">The ped to get data for.</param>
+    /// <returns>
+    /// An object containing the ped data.
+    /// Can be null if the provided ped does not exist and no previous data was stored for it,
+    /// or when the provided ped is not a human.
+    /// </returns>
+    /// <seealso cref="PedData"/>
+    /// <seealso cref="CommonDataFramework.Modules.VehicleDatabase.VehicleDataController.GetVehicleData"/>
+    public static PedData GetPedData(this Ped ped)
     {
         // No need for a .Exists check here as we might still have it cached even though it's scheduled for deletion.
         if (Database.TryGetValue(ped, out PedData pedData))
