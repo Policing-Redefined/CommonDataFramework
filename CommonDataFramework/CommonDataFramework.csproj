@@ -47,20 +47,27 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Engine\IO\IniReflector.cs" />
+        <Compile Include="Engine\Utility\Extensions\CollectionExtensions.cs" />
         <Compile Include="Engine\Utility\Extensions\FiberExtensions.cs" />
         <Compile Include="Engine\Utility\Extensions\PersonaExtensions.cs" />
         <Compile Include="Engine\Utility\GlobalUsings.cs" />
         <Compile Include="Engine\Utility\Helper.cs" />
         <Compile Include="Engine\Utility\Helpers\DateTimeHelper.cs" />
+        <Compile Include="Engine\Utility\Helpers\LSPDFRHelper.cs" />
         <Compile Include="Engine\Utility\Helpers\UIHelper.cs" />
         <Compile Include="Engine\Utility\Logger.cs" />
         <Compile Include="Engine\Utility\Resources\WeightedList.cs" />
         <Compile Include="Main.cs" />
+        <Compile Include="Modules\EDocumentStatus.cs" />
         <Compile Include="Modules\PedDatabase\PedData.cs" />
         <Compile Include="Modules\PedDatabase\PedDataController.cs" />
         <Compile Include="Modules\PedDatabase\Permits.cs" />
-        <Compile Include="Modules\PedRecord.cs" />
+        <Compile Include="Modules\VehicleDatabase\VehicleData.cs" />
+        <Compile Include="Modules\VehicleDatabase\VehicleDataController.cs" />
+        <Compile Include="Modules\VehicleDatabase\VehicleDocuments.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Settings.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
