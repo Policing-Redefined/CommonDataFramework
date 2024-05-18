@@ -5,32 +5,6 @@ using static CommonDataFramework.Engine.Utility.Helpers.DateTimeHelper;
 
 namespace CommonDataFramework.Modules.PedDatabase;
 
-/// <summary>
-/// Specifies the different states of documents.
-/// </summary>
-public enum EDocumentStatus
-{
-    /// <summary>
-    /// Document has no status.
-    /// </summary>
-    None,
-    
-    /// <summary>
-    /// Document has been revoked.
-    /// </summary>
-    Revoked,
-    
-    /// <summary>
-    /// Document is expired.
-    /// </summary>
-    Expired,
-    
-    /// <summary>
-    /// Document is valid. 
-    /// </summary>
-    Valid
-}
-
 // Weapon specific
 /// <summary>
 /// Specifies the different types of weapon permits.

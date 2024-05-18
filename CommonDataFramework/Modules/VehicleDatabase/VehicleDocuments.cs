@@ -49,10 +49,18 @@ public class VehicleIdentificationNumber
     }
 }
 
-public abstract class Document
+/// <summary>
+/// Represents the base for a vehicle document.
+/// </summary>
+public abstract class VehicleDocument
 {
-    protected EDocumentStatus _status;
-    protected static WeightedList<EDocumentStatus> _weightedStatus;
+    private EDocumentStatus _status;
+    
+    /// <summary>
+    /// Holds the probabilities of different document states for this vehicle document.
+    /// </summary>
+    /// <seealso cref="EDocumentStatus"/>
+    protected static WeightedList<EDocumentStatus> WeightedStatus;
 
      /// <summary>
     /// Gets or sets the status of the document.
@@ -77,14 +85,34 @@ public abstract class Document
     /// <seealso cref="Status"/>
     public DateTime? ExpirationDate { get; protected set; }
 
-    protected Document(EDocumentStatus? status)
+    /// <summary>
+    /// Creates an instance.
+    /// </summary>
+    /// <param name="status">Status for this document. 'Null' will randomize the status.</param>
+    protected VehicleDocument(EDocumentStatus? status)
     {
-        if (_weightedStatus == null) UpdateWeights();
-        if(status == null) status = GetRandomStatus();
+        status ??= GetRandomStatus();
         Status = (EDocumentStatus) status;
     }
 
-    protected void HandleStatusUpdate()
+    /// <summary>
+    /// Updates the probabilities.
+    /// </summary>
+    /// <seealso cref="WeightedStatus"/>
+    protected abstract void UpdateWeights();
+
+    internal static void ResetWeights()
+    {
+        WeightedStatus = null;
+    }
+    
+    private EDocumentStatus GetRandomStatus()
+    {
+        if (WeightedStatus == null) UpdateWeights();
+        return WeightedStatus.Random();
+    }
+    
+    private void HandleStatusUpdate()
     {
         switch (_status)
         {
@@ -101,32 +129,23 @@ public abstract class Document
                 break;
         }
     }
-
-    protected abstract void UpdateWeights();
-
-    internal EDocumentStatus GetRandomStatus()
-    {
-        if (_weightedStatus == null) UpdateWeights();
-        return _weightedStatus.Random();
-    }
-
-    internal static void ResetWeights()
-    {
-        _weightedStatus = null;
-    }
 }
 
 
 /// <summary>
 /// Represents the registration of a <see cref="Rage.Vehicle"/>.
 /// </summary>
-public class VehicleRegistration : Document
+public class VehicleRegistration : VehicleDocument
 {
-    public VehicleRegistration(EDocumentStatus? status) : base(status) { }
+    internal VehicleRegistration(EDocumentStatus? status) : base(status) { }
 
+    /// <summary>
+    /// Updates the probabilities.
+    /// </summary>
+    /// <seealso cref="VehicleDocument.WeightedStatus"/>
     protected override void UpdateWeights()
     {
-        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleRegValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleRegExpiredChance),
@@ -141,13 +160,17 @@ public class VehicleRegistration : Document
 /// <summary>
 /// Represents the insurance of a <see cref="Rage.Vehicle"/>.
 /// </summary>
-public class VehicleInsurance : Document
+public class VehicleInsurance : VehicleDocument
 {
-    public VehicleInsurance(EDocumentStatus? status) : base(status) { }
+    internal VehicleInsurance(EDocumentStatus? status) : base(status) { }
     
+    /// <summary>
+    /// Updates the probabilities.
+    /// </summary>
+    /// <seealso cref="VehicleDocument.WeightedStatus"/>
     protected override void UpdateWeights()
     {
-        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleInsValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleInsExpiredChance),

@@ -190,6 +190,12 @@ public class PedData
         HandlePersonaUpdate();
         PedDataController.Database.Add(holder, this);
     }
+
+    internal PedData(Persona persona) : this()
+    {
+        Persona = persona;
+        HandlePersonaUpdate();
+    }
     
     /// <summary>
     /// Combines the full name and birthday of this ped data into a string.
