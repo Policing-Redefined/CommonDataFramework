@@ -176,7 +176,7 @@ public class PedData
     /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
-    internal PedData()
+    private PedData()
     {
         HuntingPermit = new Permit(null);
         FishingPermit = new Permit(null);
