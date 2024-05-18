@@ -65,8 +65,7 @@ public static class PedDataController
     {
         if (pedData.IsScheduledForDeletion) return;
         pedData.IsScheduledForDeletion = true;
-
-        LogDebug($"PedDataController: Scheduled '{pedData.FullName}' for deletion (Time: {timeUntil / 1000}s).");
+        
         GameFiber deletion = GameFiber.StartNew(() =>
         {
             GameFiber.Sleep(timeUntil);
