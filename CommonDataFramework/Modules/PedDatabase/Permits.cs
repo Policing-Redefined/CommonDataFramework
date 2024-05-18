@@ -63,7 +63,7 @@ public class Permit
     /// <summary>
     /// Generates permit status and expiration date for the current instance.
     /// </summary>
-    protected virtual void GenerateValues(bool randomStatus = true)
+    private protected virtual void GenerateValues(bool randomStatus = true)
     {
         if (randomStatus)
         {
@@ -118,7 +118,7 @@ public class WeaponPermit : Permit
     /// <summary>
     /// Generates permit type (permit status, expiration date inherited from <see cref="Permit"/>) for the current instance.
     /// </summary>
-    protected sealed override void GenerateValues(bool randomStatus = true)
+    private protected sealed override void GenerateValues(bool randomStatus = true)
     {
         if (randomStatus)
         {

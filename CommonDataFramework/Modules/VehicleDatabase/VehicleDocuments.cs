@@ -83,13 +83,13 @@ public abstract class VehicleDocument
     /// Can be null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
     /// </summary>
     /// <seealso cref="Status"/>
-    public DateTime? ExpirationDate { get; protected set; }
+    public DateTime? ExpirationDate { get; private protected set; }
 
     /// <summary>
     /// Creates an instance.
     /// </summary>
     /// <param name="status">Status for this document. 'Null' will randomize the status.</param>
-    protected VehicleDocument(EDocumentStatus? status)
+    private protected VehicleDocument(EDocumentStatus? status)
     {
         status ??= GetRandomStatus();
         Status = (EDocumentStatus) status;
