@@ -28,6 +28,31 @@ public class VehicleData
             return _licensePlate;
         }
     }
+
+    /// <summary>
+    /// Gets or sets whether the vehicle is stolen or not.
+    /// Points to <see cref="Vehicle.IsStolen"/>.
+    /// Always returns false if the <see cref="Rage.Vechicle"/> does not exist.
+    /// </summary>
+    public bool IsStolen
+    {
+        get
+        {
+            if (Holder.Exists())
+            {
+                return Holder.IsStolen;
+            }
+            return false;
+        }
+        set
+        {
+            if (Holder.Exists())
+            {
+                Holder.IsStolen = value;
+            }
+        }
+    }
+    
     
     /// <summary>
     /// Gets the owner of this vehicle.
