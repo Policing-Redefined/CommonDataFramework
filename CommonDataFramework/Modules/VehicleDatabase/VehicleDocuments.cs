@@ -60,7 +60,7 @@ public abstract class VehicleDocument
     /// Holds the probabilities of different document states for this vehicle document.
     /// </summary>
     /// <seealso cref="EDocumentStatus"/>
-    protected static WeightedList<EDocumentStatus> WeightedStatus;
+    private protected static WeightedList<EDocumentStatus> WeightedStatus;
 
      /// <summary>
     /// Gets or sets the status of the document.
@@ -99,7 +99,7 @@ public abstract class VehicleDocument
     /// Updates the probabilities.
     /// </summary>
     /// <seealso cref="WeightedStatus"/>
-    protected abstract void UpdateWeights();
+    private protected abstract void UpdateWeights();
 
     internal static void ResetWeights()
     {
@@ -143,7 +143,7 @@ public class VehicleRegistration : VehicleDocument
     /// Updates the probabilities.
     /// </summary>
     /// <seealso cref="VehicleDocument.WeightedStatus"/>
-    protected override void UpdateWeights()
+    private protected override void UpdateWeights()
     {
         WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
@@ -168,7 +168,7 @@ public class VehicleInsurance : VehicleDocument
     /// Updates the probabilities.
     /// </summary>
     /// <seealso cref="VehicleDocument.WeightedStatus"/>
-    protected override void UpdateWeights()
+    private protected override void UpdateWeights()
     {
         WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
