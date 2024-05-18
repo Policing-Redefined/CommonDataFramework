@@ -49,16 +49,13 @@ public class VehicleIdentificationNumber
     }
 }
 
-/// <summary>
-/// Represents the registration of a <see cref="Rage.Vehicle"/>.
-/// </summary>
-public class VehicleRegistration
+public abstract class Document
 {
-    private EDocumentStatus _status;
-    private static WeightedList<EDocumentStatus> _weightedRegStatus;
+    protected EDocumentStatus _status;
+    protected static WeightedList<EDocumentStatus> _weightedStatus;
 
-    /// <summary>
-    /// Gets or sets the status of the registration.
+     /// <summary>
+    /// Gets or sets the status of the document.
     /// This also alters <see cref="ExpirationDate"/>.
     /// </summary>
     /// <seealso cref="EDocumentStatus"/>
@@ -67,37 +64,51 @@ public class VehicleRegistration
         get => _status;
         set
         {
-            if (_status == value) return; // Don't update it.
+            if (_status == value) return;
             _status = value;
-            HandleRegistrationUpdate();
+            HandleStatusUpdate();
         }
     }
-    
+
     /// <summary>
     /// Gets the expiration date of the registration.
     /// Can be null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
     /// </summary>
     /// <seealso cref="Status"/>
-    public DateTime? ExpirationDate { get; private set; }
+    public DateTime? ExpirationDate { get; protected set; }
 
-    internal VehicleRegistration(EDocumentStatus status)
+    protected Document(EDocumentStatus? status)
     {
-        if (_weightedRegStatus == null) UpdateWeights();
-        Status = status;
+        if (_weightedStatus == null) UpdateWeights();
+        if(status == null) status = GetRandomStatus();
+        Status = (EDocumentStatus) status;
     }
-    
-    internal static EDocumentStatus GetRandomStatus()
+
+    protected abstract void HandleStatusUpdate();
+
+    protected abstract void UpdateWeights();
+
+    internal EDocumentStatus GetRandomStatus()
     {
-        if (_weightedRegStatus == null) UpdateWeights();
-        return _weightedRegStatus.Random();
+        if (_weightedStatus == null) UpdateWeights();
+        return _weightedStatus.Random();
     }
-    
+
     internal static void ResetWeights()
     {
-        _weightedRegStatus = null;
+        _weightedStatus = null;
     }
+}
 
-    private void HandleRegistrationUpdate()
+
+/// <summary>
+/// Represents the registration of a <see cref="Rage.Vehicle"/>.
+/// </summary>
+public class VehicleRegistration : Document
+{
+    public VehicleRegistration(EDocumentStatus? status) : base(status) { }
+
+    protected override void HandleStatusUpdate()
     {
         switch (_status)
         {
@@ -114,10 +125,10 @@ public class VehicleRegistration
                 break;
         }
     }
-    
-    private static void UpdateWeights()
+
+    protected override void UpdateWeights()
     {
-        _weightedRegStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleRegValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleRegExpiredChance),
@@ -127,55 +138,16 @@ public class VehicleRegistration
     }
 }
 
+
+
 /// <summary>
 /// Represents the insurance of a <see cref="Rage.Vehicle"/>.
 /// </summary>
-public class VehicleInsurance
+public class VehicleInsurance : Document
 {
-    private EDocumentStatus _status;
-    private static WeightedList<EDocumentStatus> _weightedInsStatus;
+    public VehicleInsurance(EDocumentStatus? status) : base(status) { }
 
-    /// <summary>
-    /// Gets or sets the status of the insurance.
-    /// This also alters <see cref="ExpirationDate"/>.
-    /// </summary>
-    /// <seealso cref="EDocumentStatus"/>
-    public EDocumentStatus Status
-    {
-        get => _status;
-        set
-        {
-            if (_status == value) return; // Don't update it.
-            _status = value;
-            HandleInsuranceUpdate();
-        }
-    }
-    
-    /// <summary>
-    /// Gets the expiration date of the insurance.
-    /// Can be null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
-    /// </summary>
-    /// <seealso cref="Status"/>
-    public DateTime? ExpirationDate { get; private set; }
-
-    internal VehicleInsurance(EDocumentStatus status)
-    {
-        if (_weightedInsStatus == null) UpdateWeights();
-        Status = status;
-    }
-
-    internal static EDocumentStatus GetRandomStatus()
-    {
-        if (_weightedInsStatus == null) UpdateWeights();
-        return _weightedInsStatus!.Next(); // Why does this warn of a null ref exception but in vehicle reg it does not?
-    }
-    
-    internal static void ResetWeights()
-    {
-        _weightedInsStatus = null;
-    }
-
-    private void HandleInsuranceUpdate()
+    protected override void HandleStatusUpdate()
     {
         switch (_status)
         {
@@ -192,10 +164,10 @@ public class VehicleInsurance
                 break;
         }
     }
-    
-    private static void UpdateWeights()
+
+    protected override void UpdateWeights()
     {
-        _weightedInsStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleInsValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleInsExpiredChance),

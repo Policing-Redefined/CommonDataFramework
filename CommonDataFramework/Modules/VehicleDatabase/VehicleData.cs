@@ -68,8 +68,9 @@ public class VehicleData
         // Create documents
         bool special = vehicle.Model.IsLawEnforcementVehicle;
         Vin = new VehicleIdentificationNumber((!special && GetRandomChance(CDFSettings.VehicleVinScratchedChance)) ? EVinStatus.Scratched : EVinStatus.Valid);
-        Registration = new VehicleRegistration(special ? EDocumentStatus.Valid : VehicleRegistration.GetRandomStatus());
-        Insurance = new VehicleInsurance(special ? EDocumentStatus.Valid : VehicleInsurance.GetRandomStatus());
+        // If null, a random status will be given.
+        Registration = new VehicleRegistration(special ? EDocumentStatus.Valid : null);
+        Insurance = new VehicleInsurance(special ? EDocumentStatus.Valid : null);
         
         VehicleDataController.Database.Add(vehicle, this);
     }

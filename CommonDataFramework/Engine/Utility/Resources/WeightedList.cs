@@ -16,7 +16,7 @@ namespace CommonDataFramework.Engine.Utility.Resources;
 /// O(n) CRUD complexity. In other words, you can add any item of type T to a List with an integer weight,
 /// and get a random item from the list with probability ( weight / sum-weights ).
 /// </summary>
-internal class WeightedList<T> : IEnumerable<T>
+public class WeightedList<T> : IEnumerable<T>
 {
     /// <summary>
     /// Create a new WeightedList with an optional System.Random.
@@ -300,7 +300,7 @@ internal class WeightedList<T> : IEnumerable<T>
 /// and Add() to the WeightedList for a single calculation pass.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-internal readonly struct WeightedListItem<T>
+public readonly struct WeightedListItem<T>
 {
     internal readonly T Item;
     internal readonly int Weight;
@@ -312,7 +312,7 @@ internal readonly struct WeightedListItem<T>
     }
 }
 
-internal enum WeightErrorHandlingType
+public enum WeightErrorHandlingType
 {
     SetWeightToOne, // Default
     ThrowExceptionOnAdd, // Throw exception for adding non-positive weight.
