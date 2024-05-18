@@ -84,7 +84,23 @@ public abstract class Document
         Status = (EDocumentStatus) status;
     }
 
-    protected abstract void HandleStatusUpdate();
+    protected void HandleStatusUpdate()
+    {
+        switch (_status)
+        {
+            case EDocumentStatus.Revoked:
+            case EDocumentStatus.Expired:
+                ExpirationDate = GetRandomDateTimeWithinRange(2);
+                break;
+            case EDocumentStatus.Valid:
+                ExpirationDate = GetRandomDateTimeWithinRange(CurrentDate.AddYears(1));
+                break;
+            case EDocumentStatus.None:
+            default:
+                ExpirationDate = null;
+                break;
+        }
+    }
 
     protected abstract void UpdateWeights();
 
@@ -108,24 +124,6 @@ public class VehicleRegistration : Document
 {
     public VehicleRegistration(EDocumentStatus? status) : base(status) { }
 
-    protected override void HandleStatusUpdate()
-    {
-        switch (_status)
-        {
-            case EDocumentStatus.Revoked:
-            case EDocumentStatus.Expired:
-                ExpirationDate = GetRandomDateTimeWithinRange(2);
-                break;
-            case EDocumentStatus.Valid:
-                ExpirationDate = GetRandomDateTimeWithinRange(CurrentDate.AddYears(1));
-                break;
-            case EDocumentStatus.None:
-            default:
-                ExpirationDate = null;
-                break;
-        }
-    }
-
     protected override void UpdateWeights()
     {
         _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
@@ -146,25 +144,7 @@ public class VehicleRegistration : Document
 public class VehicleInsurance : Document
 {
     public VehicleInsurance(EDocumentStatus? status) : base(status) { }
-
-    protected override void HandleStatusUpdate()
-    {
-        switch (_status)
-        {
-            case EDocumentStatus.Revoked:
-            case EDocumentStatus.Expired:
-                ExpirationDate = GetRandomDateTimeWithinRange(2);
-                break;
-            case EDocumentStatus.Valid:
-                ExpirationDate = GetRandomDateTimeWithinRange(CurrentDate.AddYears(1));
-                break;
-            case EDocumentStatus.None:
-            default:
-                ExpirationDate = null;
-                break;
-        }
-    }
-
+    
     protected override void UpdateWeights()
     {
         _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
