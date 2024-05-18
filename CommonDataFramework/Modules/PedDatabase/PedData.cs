@@ -178,9 +178,9 @@ public class PedData
     /// </summary>
     internal PedData()
     {
-        HuntingPermit = new Permit();
-        FishingPermit = new Permit();
-        WeaponPermit = new WeaponPermit();
+        HuntingPermit = new Permit(null);
+        FishingPermit = new Permit(null);
+        WeaponPermit = new WeaponPermit(null, null);
     }
 
     internal PedData(Ped holder) : this()
