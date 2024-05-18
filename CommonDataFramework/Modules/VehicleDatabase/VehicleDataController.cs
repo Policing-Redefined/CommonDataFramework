@@ -82,6 +82,7 @@ public static class VehicleDataController
         {
             while (EntryPoint.OnDuty)
             {
+                GameFiber.Yield();
                 foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
                 {
                     if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;

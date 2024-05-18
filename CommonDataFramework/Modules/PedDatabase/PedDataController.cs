@@ -84,6 +84,7 @@ public static class PedDataController
         {
             while (EntryPoint.OnDuty)
             {
+                GameFiber.Yield();
                 foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
                 {
                     if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;
