@@ -34,42 +34,39 @@ public class Permit
         new(EDocumentStatus.Expired, 20),
         new(EDocumentStatus.Valid, 23)
     });
+
+    private EDocumentStatus _status;
     
     /// <summary>
-    /// The status of the permit.
+    /// Gets or sets status of the permit.
     /// </summary>
     /// <seealso cref="EDocumentStatus"/>
-    /// <seealso cref="SetStatus"/>
-    public EDocumentStatus Status { get; private set; }
+    public EDocumentStatus Status
+    {
+        get => _status;
+        set
+        {
+            _status = value;
+            UpdateValues();
+        }
+    }
     
     /// <summary>
     /// The expiration date of the permit.
-    /// Can only be changed through <see cref="SetStatus"/>.
+    /// Can only be changed by changing <see cref="Status"/>.
     /// </summary>
     public DateTime ExpirationDate { get; private set; }
 
-    /// <summary>
-    /// Changes the status of the permit.
-    /// </summary>
-    /// <param name="status">The new status.</param>
-    /// <seealso cref="EDocumentStatus"/>
-    /// <seealso cref="Status"/>
-    public void SetStatus(EDocumentStatus status)
+    internal Permit(EDocumentStatus? status)
     {
-        Status = status;
-        GenerateValues(false);
+        Status = status ?? DocumentStatuses.Next();
     }
 
     /// <summary>
-    /// Generates permit status and expiration date for the current instance.
+    /// Updates expiration date for the current instance.
     /// </summary>
-    private protected virtual void GenerateValues(bool randomStatus = true)
+    private void UpdateValues()
     {
-        if (randomStatus)
-        {
-            Status = DocumentStatuses.Next();
-        }
-        
         ExpirationDate = Status switch
         {
             EDocumentStatus.Revoked => GetRandomDateTimeWithinRange(4),
@@ -89,42 +86,17 @@ public class WeaponPermit : Permit
     private static readonly WeightedList<EWeaponPermitType> WeaponPermitTypes = new(new List<WeightedListItem<EWeaponPermitType>>
     {
         new(EWeaponPermitType.CcwPermit, 30),
-        new(EWeaponPermitType.FflPermit, 7),
+        new(EWeaponPermitType.FflPermit, 7)
     });
-    
+
     /// <summary>
-    /// The type of the weapon permit.
+    /// Gets or sets type of the weapon permit.
     /// </summary>
     /// <seealso cref="EWeaponPermitType"/>
-    /// <seealso cref="SetPermitType"/>
-    public EWeaponPermitType PermitType { get; private set; }
+    public EWeaponPermitType PermitType { get; set; }
 
-    internal WeaponPermit()
+    internal WeaponPermit(EDocumentStatus? status, EWeaponPermitType? permit) : base(status)
     {
-        GenerateValues();
-    }
-
-    /// <summary>
-    /// Sets the type of the weapon permit.
-    /// </summary>
-    /// <param name="permitType">The new type.</param>
-    /// <seealso cref="EWeaponPermitType"/>
-    /// <seealso cref="PermitType"/>
-    public void SetPermitType(EWeaponPermitType permitType)
-    {
-        PermitType = permitType;
-    }
-
-    /// <summary>
-    /// Generates permit type (permit status, expiration date inherited from <see cref="Permit"/>) for the current instance.
-    /// </summary>
-    private protected sealed override void GenerateValues(bool randomStatus = true)
-    {
-        if (randomStatus)
-        {
-            PermitType = WeaponPermitTypes.Next();
-        }
-        
-        base.GenerateValues(randomStatus);
+        PermitType = permit ?? WeaponPermitTypes.Next();
     }
 }

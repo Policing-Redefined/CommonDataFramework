@@ -92,6 +92,10 @@ public class VehicleData
     
     /// <summary>
     /// Gets the owner of this vehicle.
+    /// Make sure to check <see cref="PedData.HasRealPed"/> before making use of the <see cref="PedData.Holder"/> property,
+    /// as it might not have an actual ped in use (e.g. for government/stolen/random ped vehicles...).
+    /// If you are a e.g. a computer plugin and need a ped mugshot, just grab a random ped from the world and generate
+    /// the mugshot based on that.
     /// </summary>
     /// <seealso cref="PedData"/>
     public PedData Owner { get; private set; }
@@ -299,7 +303,7 @@ public enum EVehicleOwnerType
     Driver,
         
     /// <summary>
-    /// The passenger is the owner of the vehicle.
+    /// A passenger is the owner of the vehicle.
     /// </summary>
     Passenger,
         

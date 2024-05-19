@@ -176,11 +176,11 @@ public class PedData
     /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
-    internal PedData()
+    private PedData()
     {
-        HuntingPermit = new Permit();
-        FishingPermit = new Permit();
-        WeaponPermit = new WeaponPermit();
+        HuntingPermit = new Permit(null);
+        FishingPermit = new Permit(null);
+        WeaponPermit = new WeaponPermit(null, null);
     }
 
     internal PedData(Ped holder) : this()

@@ -63,8 +63,7 @@ public static class VehicleDataController
     {
         if (vehicleData.IsScheduledForDeletion) return;
         vehicleData.IsScheduledForDeletion = true;
-
-        LogDebug($"VehicleDataController: Scheduled '{vehicleData.LicensePlate}' for deletion (Time: {timeUntil / 1000}s).");
+        
         GameFiber deletion = GameFiber.StartNew(() =>
         {
             GameFiber.Sleep(timeUntil);
