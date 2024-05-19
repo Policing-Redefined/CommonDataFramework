@@ -4,6 +4,7 @@
 namespace CommonDataFramework;
 
 [IniReflectorSection("Vehicle")]
+[IniReflectorSection("Ped")]
 internal class Settings
 {
     #region DEFAULT
@@ -21,6 +22,10 @@ internal class Settings
     internal const int DefaultVehicleVinValidChance = 90;
     internal const int DefaultVehicleVinScratchedChance = 10;
     
+    // Default: Ped
+    internal const int DefaultPedProbationChance = 25;
+    internal const int DefaultPedParoleChance = 30;
+    
     #endregion
     
     // Vehicle
@@ -35,6 +40,10 @@ internal class Settings
     internal int VehicleUninsuredChance;
     internal int VehicleVinValidChance;
     internal int VehicleVinScratchedChance;
+    
+    // Ped
+    internal int PedProbationChance;
+    internal int PedParoleChance;
     
     #region STATIC
     

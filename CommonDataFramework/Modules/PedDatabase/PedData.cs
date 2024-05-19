@@ -181,6 +181,11 @@ public class PedData
         HuntingPermit = new Permit(null);
         FishingPermit = new Permit(null);
         WeaponPermit = new WeaponPermit(null, null);
+        IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
+        if (!IsOnProbation)
+        {
+            IsOnParole = GetRandomChance(CDFSettings.PedParoleChance);
+        }
     }
 
     internal PedData(Ped holder) : this()
