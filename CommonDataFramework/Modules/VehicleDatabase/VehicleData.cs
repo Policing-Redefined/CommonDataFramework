@@ -89,7 +89,6 @@ public class VehicleData
         }
     }
     
-    
     /// <summary>
     /// Gets the owner of this vehicle.
     /// Make sure to check <see cref="PedData.HasRealPed"/> before making use of the <see cref="PedData.Holder"/> property,
@@ -99,6 +98,10 @@ public class VehicleData
     /// </summary>
     /// <seealso cref="PedData"/>
     public PedData Owner { get; private set; }
+
+    // When the owner type is set to 'RandomPed' or 'FamilyMember', a random temporary ped is created, that is dismissed
+    // when the vehicle stops existing or the owner type is changed.
+    internal Ped TempPed { get; private set; }
     
     private EVehicleOwnerType _ownerType;
     /// <summary>
@@ -117,6 +120,15 @@ public class VehicleData
             }
 
             return _ownerType;
+        }
+        private set
+        {
+            _ownerType = value;
+            if (value != EVehicleOwnerType.RandomPed && value != EVehicleOwnerType.FamilyMember && TempPed.Exists())
+            {
+                TempPed.Dismiss();
+                TempPed = null; // Reset the field as the ped is no longer needed
+            }
         }
     }
 
@@ -137,12 +149,6 @@ public class VehicleData
     /// </summary>
     /// <seealso cref="VehicleInsurance"/>
     public readonly VehicleInsurance Insurance;
-    
-    /// <summary>
-    /// Once the vehicle that owns this vehicle data stops existing, the vehicle data is scheduled for deletion.
-    /// This field is set to 'true' once the vehicle data is scheduled for deletion.
-    /// </summary>
-    public bool IsScheduledForDeletion { get; internal set; }
     
     internal VehicleData(Vehicle vehicle)
     {
@@ -191,15 +197,19 @@ public class VehicleData
                 gov.Wanted = false;
 
                 Owner = new PedData(gov);
-                _ownerType = EVehicleOwnerType.Government;
+                OwnerType = EVehicleOwnerType.Government;
                 
                 return true;
             }
             
             if (IsStolen) // This vehicle owner must be a random ped.
             {
-                Owner = new PedData(PersonaHelper.GenerateNewPersona());
-                _ownerType = EVehicleOwnerType.RandomPed;
+                TempPed = CreateRandomPed();
+                
+                Owner = new PedData(TempPed);
+                // TODO teleport ped to address
+                
+                OwnerType = EVehicleOwnerType.RandomPed;
                 return true;
             }
         }
@@ -227,7 +237,7 @@ public class VehicleData
                 return false;
             }
             
-            _ownerType = owner;
+            OwnerType = owner;
             Owner = pedData;
             
             return true;
@@ -252,27 +262,31 @@ public class VehicleData
                 Ped passengerToUse = (Holder.Passengers.Length != 0 && VehicleOwnerTypes.Next() == EVehicleOwnerType.Passenger) ? Holder.Passengers.Random() : null;
                 PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
                 
-                // Generate random persona
-                Persona family = PersonaHelper.GenerateNewPersona();
-                driverData.Lastname = family.Surname; // Match driver lastname with family name
+                // Generate random ped
+                TempPed = CreateRandomPed();
+                Owner = new PedData(TempPed);
+                // TODO teleport ped to address
+                
+                driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
                 if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
                 {
-                    passengerData.Lastname = family.Surname;
+                    passengerData.Lastname = Owner.Lastname;
                 }
-
-                Owner = new PedData(family);
+                
                 break;
             }
             case EVehicleOwnerType.RandomPed:
             {
-                Owner = new PedData(PersonaHelper.GenerateNewPersona());
+                TempPed = CreateRandomPed();
+                Owner = new PedData(TempPed);
+                // TODO Teleport ped to address
                 break;
             }
             default:
                 throw new InvalidEnumArgumentException($"{nameof(EVehicleOwnerType)}: Invalid owner type: {owner}.");
         }
 
-        _ownerType = owner;
+        OwnerType = owner;
         return true;
     }
     
@@ -290,6 +304,11 @@ public class VehicleData
             _ => ownerType
         };
     }
+
+    private static Ped CreateRandomPed() => new()
+    {
+        IsPersistent = true
+    };
 }
 
 /// <summary>

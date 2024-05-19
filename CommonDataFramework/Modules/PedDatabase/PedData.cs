@@ -168,12 +168,6 @@ public class PedData
     public readonly WeaponPermit WeaponPermit;
     
     /// <summary>
-    /// Once the ped that owns this ped data stops existing, the ped data is scheduled for deletion.
-    /// This field is set to 'true' once the ped data is scheduled for deletion.
-    /// </summary>
-    public bool IsScheduledForDeletion { get; internal set; }
-    
-    /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
     private PedData()

@@ -12,7 +12,6 @@ namespace CommonDataFramework.Modules.PedDatabase;
 public static class PedDataController
 {
     internal static readonly Dictionary<Ped, PedData> Database = new();
-    private static readonly Dictionary<Ped, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
     /// <summary>
@@ -49,32 +48,8 @@ public static class PedDataController
     {
         _process.AbortSafe();
         _process = null;
-
-        foreach (KeyValuePair<Ped, GameFiber> deletion in DeletionQueue)
-        {
-            deletion.Value.AbortSafe();
-        }
-        
-        DeletionQueue.Clear();
         Database.Clear();
-
         LogDebug("Stop: PedDataController.");
-    }
-
-    private static void ScheduleForDeletion(PedData pedData, int timeUntil = 60000 * 5) // 5 Minutes
-    {
-        if (pedData.IsScheduledForDeletion) return;
-        pedData.IsScheduledForDeletion = true;
-        
-        GameFiber deletion = GameFiber.StartNew(() =>
-        {
-            GameFiber.Sleep(timeUntil);
-            Database.Remove(pedData.Holder);
-            DeletionQueue.Remove(pedData.Holder);
-            LogDebug($"PedDataController: '{pedData.FullName}' was deleted.");
-        });
-
-        DeletionQueue[pedData.Holder] = deletion;
     }
 
     private static void Process()
@@ -83,12 +58,17 @@ public static class PedDataController
         {
             while (EntryPoint.OnDuty)
             {
-                GameFiber.Yield();
+                GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
+
+                int deleted = 0;
                 foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
                 {
-                    if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;
-                    ScheduleForDeletion(entry.Value);
+                    if (entry.Key.Exists()) continue;
+                    Database.Remove(entry.Key);
+                    deleted++;
                 }
+                
+                LogDebug($"PedDataController: Deleted {deleted} entries.");
             }
         }
         catch (ThreadAbortException)

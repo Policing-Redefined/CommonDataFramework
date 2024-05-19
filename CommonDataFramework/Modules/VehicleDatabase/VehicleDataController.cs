@@ -12,7 +12,6 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 public static class VehicleDataController
 {
     internal static readonly Dictionary<Vehicle, VehicleData> Database = new();
-    private static readonly Dictionary<Vehicle, GameFiber> DeletionQueue = new();
     private static GameFiber _process;
 
     /// <summary>
@@ -47,32 +46,20 @@ public static class VehicleDataController
     {
         _process.AbortSafe();
         _process = null;
-
-        foreach (KeyValuePair<Vehicle, GameFiber> deletion in DeletionQueue)
+        
+        KeyValuePair<Vehicle, VehicleData>[] dbCopy = Database.ToArray();
+        Database.Clear(); // Clear the database just in case dismissing throws an exception for whatever reason
+        
+        // Dismiss temporary peds
+        foreach (KeyValuePair<Vehicle, VehicleData> entry in dbCopy)
         {
-            deletion.Value.AbortSafe();
+            if (entry.Value.TempPed.Exists())
+            {
+                entry.Value.TempPed.Dismiss();
+            }
         }
         
-        DeletionQueue.Clear();
-        Database.Clear();
-
         LogDebug("Stop: VehicleDataController.");
-    }
-
-    private static void ScheduleForDeletion(VehicleData vehicleData, int timeUntil = 60000 * 5) // 5 Minutes
-    {
-        if (vehicleData.IsScheduledForDeletion) return;
-        vehicleData.IsScheduledForDeletion = true;
-        
-        GameFiber deletion = GameFiber.StartNew(() =>
-        {
-            GameFiber.Sleep(timeUntil);
-            Database.Remove(vehicleData.Holder);
-            DeletionQueue.Remove(vehicleData.Holder);
-            LogDebug($"VehicleDataController: '{vehicleData.LicensePlate}' was deleted.");
-        });
-
-        DeletionQueue[vehicleData.Holder] = deletion;
     }
 
     private static void Process()
@@ -81,12 +68,23 @@ public static class VehicleDataController
         {
             while (EntryPoint.OnDuty)
             {
-                GameFiber.Yield();
+                GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
+
+                int deleted = 0;
                 foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
                 {
-                    if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;
-                    ScheduleForDeletion(entry.Value);
+                    if (entry.Key.Exists()) continue;
+                    Database.Remove(entry.Key);
+                    deleted++;
+
+                    // Dismiss temporary ped, don't reset the field though
+                    if (entry.Value.TempPed.Exists())
+                    {
+                        entry.Value.TempPed.Dismiss();
+                    }
                 }
+                
+                LogDebug($"VehicleDataController: Deleted {deleted} entries.");
             }
         }
         catch (ThreadAbortException)
