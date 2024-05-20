@@ -45,17 +45,6 @@ public class EntryPoint : Plugin
         VehicleDataController.Start();
         PostalCodeHandler.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
-        test();
-    }
-
-    internal static void test()
-    {
-        LogDebug("Testing method started");
-        while (OnDuty)
-        {
-            GameFiber.Yield();
-            Game.DisplaySubtitle(PostalCodeHandler.GetPostalCode(Game.LocalPlayer.Character.Position));
-        }
     }
     
     private static void UnloadSystems()
