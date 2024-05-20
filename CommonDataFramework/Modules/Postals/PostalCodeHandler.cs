@@ -20,7 +20,7 @@ internal static class PostalCodeHandler
     /// <summary>
     /// The path for the postal codes xml.
     /// </summary>
-    internal static string PostalXmlPath = "";
+    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/Postals.xml";
 
     /// <summary>
     /// Gets the postal code as a stringed number.
@@ -75,15 +75,13 @@ internal static class PostalCodeHandler
         return null;
     }
 
-    private static void Load()
+    internal static void Load()
     {
-        foreach (var filename in Directory.GetFiles(PostalXmlPath).Where(x => x.EndsWith(".xml")))
+        var postalCodeSet = PostalCodeSet.FromXML(PostalXmlPath);
+        LogDebug($"postalcodeset null: {postalCodeSet == null}");
+        if (postalCodeSet != null)
         {
-            var postalCodeSet = PostalCodeSet.FromXML(filename);
-            if (postalCodeSet != null)
-            {
-                PostalCodeSet = postalCodeSet;
-            }
+            PostalCodeSet = postalCodeSet;
         }
     }
 }

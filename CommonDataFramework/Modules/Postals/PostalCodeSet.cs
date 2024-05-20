@@ -43,7 +43,7 @@ internal class PostalCodeSet
         }
         catch (Exception ex)
         {
-            // TODO logging
+            LogDebug(ex.ToString());
         }
 
         return null;
