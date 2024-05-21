@@ -1,5 +1,6 @@
 ﻿using System;
 using CommonDataFramework.Engine.Utility.Extensions;
+using CommonDataFramework.Modules.PedResidence;
 using LSPD_First_Response;
 using LSPD_First_Response.Engine.Scripting.Entities;
 using static CommonDataFramework.Engine.Utility.Helpers.DateTimeHelper;
@@ -27,7 +28,8 @@ public class PedData
     /// The expiration date of the ped's drivers license (if the ped owns one).
     /// </summary>
     public DateTime? DriversLicenseExpiration { get; private set; }
-    // TODO PedAddress
+
+    public PedAddress PedAddress { get; set; }
 
     /// <summary>
     /// Gets or sets the current state of the ped's drivers license.
