@@ -14,6 +14,15 @@ public class PedAddress
 
     public static string StreetName { get; set; }
 
+
+    public PedAddress()
+    {
+        int index = new Random(DateTime.Today.Millisecond).Next(PostalCodeHandler.PostalCodeSet.Codes.Count);
+        AddressPostal = PostalCodeHandler.PostalCodeSet.Codes[index];
+        StreetName = World.GetStreetName(new Vector3(AddressPostal.X, AddressPostal.Y, 0));
+    }
+    
+    
     public PedAddress(Postal postal, string address)
     {
         AddressPostal = postal;

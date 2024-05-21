@@ -184,6 +184,7 @@ public class PedData
         FishingPermit = new Permit(null);
         WeaponPermit = new WeaponPermit(null, null);
         IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
+        PedAddress = new PedAddress();
         if (!IsOnProbation)
         {
             IsOnParole = GetRandomChance(CDFSettings.PedParoleChance);
