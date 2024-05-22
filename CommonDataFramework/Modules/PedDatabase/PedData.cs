@@ -29,8 +29,6 @@ public class PedData
     /// </summary>
     public DateTime? DriversLicenseExpiration { get; private set; }
 
-    public PedAddress PedAddress { get; set; }
-
     /// <summary>
     /// Gets or sets the current state of the ped's drivers license.
     /// This also affects <see cref="DriversLicenseExpiration"/>.
@@ -170,6 +168,12 @@ public class PedData
     public readonly WeaponPermit WeaponPermit;
     
     /// <summary>
+    /// Gets or sets the address of the ped.
+    /// </summary>
+    /// <seealso cref="PedAddress"/>
+    public PedAddress Address { get; set; }
+    
+    /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
     private PedData()
@@ -177,8 +181,8 @@ public class PedData
         HuntingPermit = new Permit(null);
         FishingPermit = new Permit(null);
         WeaponPermit = new WeaponPermit(null, null);
+        Address = new PedAddress();
         IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
-        PedAddress = new PedAddress();
         if (!IsOnProbation)
         {
             IsOnParole = GetRandomChance(CDFSettings.PedParoleChance);

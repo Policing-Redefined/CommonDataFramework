@@ -62,7 +62,7 @@
     <Compile Include="Modules\PedResidence\PedAddress.cs" />
     <Compile Include="Modules\Postals\NearestPostalCode.cs" />
     <Compile Include="Modules\Postals\Postal.cs" />
-    <Compile Include="Modules\Postals\PostalCodeHandler.cs" />
+    <Compile Include="Modules\Postals\PostalCodeController.cs" />
     <Compile Include="Modules\Postals\PostalCodeSet.cs" />
     <Compile Include="Modules\PedDatabase\PedData.cs" />
     <Compile Include="Modules\PedDatabase\PedDataController.cs" />

@@ -19,13 +19,7 @@ internal class NearestPostalCode
     /// <summary>
     /// Gets a caption for the ResText.
     /// </summary>
-    public string Caption
-    {
-        get
-        {
-            return $"~w~{Code.Number} (~g~{Distance:.02}m~w~)";
-        }
-    }
+    public string Caption => $"~w~{Code.Number} (~g~{Distance:.02}m~w~)";
 
     /// <summary>
     /// Gets the postal code.

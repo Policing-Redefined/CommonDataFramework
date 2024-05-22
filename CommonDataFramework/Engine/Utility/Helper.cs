@@ -13,7 +13,8 @@ internal static class Helper
     
     internal static readonly string PluginVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(0, 5);
 
-    internal const string DefaultPluginFolder = "plugins/LSPDFR";
+    internal const string DefaultPluginPath = "plugins/LSPDFR";
+    internal const string DefaultPluginFolder = DefaultPluginPath + "/CommonDataFramework";
 
     internal static Settings CDFSettings => Settings.Instance;
 

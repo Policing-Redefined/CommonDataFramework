@@ -10,17 +10,17 @@ namespace CommonDataFramework.Modules.Postals;
 /// <summary>
 /// Handles the postal codes.
 /// </summary>
-internal static class PostalCodeHandler
+internal static class PostalCodeController
 {
-    /// <summary>
-    /// Gets the active postal code set.
-    /// </summary>
-    internal static PostalCodeSet PostalCodeSet { get; private set; } = null;
-
     /// <summary>
     /// The path for the postal codes xml.
     /// </summary>
-    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/Postals.xml";
+    private const string PostalXmlPath = DefaultPluginFolder + "/Postals.xml";
+    
+    /// <summary>
+    /// Gets the active postal code set.
+    /// </summary>
+    internal static PostalCodeSet PostalCodeSet { get; private set; }
 
     /// <summary>
     /// Gets the postal code as a stringed number.
@@ -31,7 +31,7 @@ internal static class PostalCodeHandler
     {
         if (PostalCodeSet != null)
         {
-            var code = GetNearestPostalCode(position);
+            NearestPostalCode code = GetNearestPostalCode(position);
             if (code != null)
             {
                 return code.Code.Number;
@@ -48,7 +48,7 @@ internal static class PostalCodeHandler
     /// <returns>The nearest postal code.</returns>
     public static NearestPostalCode GetNearestPostalCode(Vector3 position)
     {
-        var iter = PostalCodeSet.Codes.Where(code =>
+        IEnumerable<Postal> iter = PostalCodeSet.Codes.Where(code =>
             code.X > position.X - 500 &&
             code.X < position.X + 500 &&
             code.Y > position.Y - 500 &&
@@ -56,29 +56,22 @@ internal static class PostalCodeHandler
 
         float nearestDistance = -1;
         Postal nearestCode = null;
-        foreach (var entry in iter)
+        foreach (Postal entry in iter)
         {
-            var codePosition = new Vector3(entry.X, entry.Y, 0);
-            var codeDistance = codePosition.DistanceTo(position);
-            if (nearestCode == null || codeDistance < nearestDistance)
-            {
-                nearestCode = entry;
-                nearestDistance = codeDistance;
-            }
+            Vector3 codePosition = new(entry.X, entry.Y, 0);
+            float codeDistance = codePosition.DistanceTo(position);
+            if (nearestCode != null && codeDistance > nearestDistance) continue;
+            nearestCode = entry;
+            nearestDistance = codeDistance;
         }
 
-        if (nearestCode != null)
-        {
-            return new NearestPostalCode(nearestCode, nearestDistance);
-        }
-
-        return null;
+        return nearestCode != null ? new NearestPostalCode(nearestCode, nearestDistance) : null;
     }
 
     internal static void Load()
     {
-        var postalCodeSet = PostalCodeSet.FromXML(PostalXmlPath);
-        LogDebug($"postalcodeset null: {postalCodeSet == null}");
+        PostalCodeSet postalCodeSet = PostalCodeSet.FromXML(PostalXmlPath);
+        LogDebug($"PostalCodeSet: Null: {postalCodeSet == null}.");
         if (postalCodeSet != null)
         {
             PostalCodeSet = postalCodeSet;
