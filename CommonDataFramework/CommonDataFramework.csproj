@@ -1,81 +1,85 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
-            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{C8C38D02-954D-4AE0-9265-6DD350BA36BA}</ProjectGuid>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>CommonDataFramework</RootNamespace>
-        <AssemblyName>CommonDataFramework</AssemblyName>
-        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <LangVersion>latestmajor</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <DocumentationFile>bin\Debug\CommonDataFramework.xml</DocumentationFile>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="LSPD First Response">
-          <HintPath>..\..\..\..\..\..\References\LSPD First Response.dll</HintPath>
-        </Reference>
-        <Reference Include="RagePluginHook">
-          <HintPath>..\..\..\..\..\..\References\RagePluginHook.dll</HintPath>
-        </Reference>
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Xml"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Engine\IO\IniReflector.cs" />
-        <Compile Include="Engine\Utility\Extensions\CollectionExtensions.cs" />
-        <Compile Include="Engine\Utility\Extensions\FiberExtensions.cs" />
-        <Compile Include="Engine\Utility\Extensions\PersonaExtensions.cs" />
-        <Compile Include="Engine\Utility\GlobalUsings.cs" />
-        <Compile Include="Engine\Utility\Helper.cs" />
-        <Compile Include="Engine\Utility\Helpers\DateTimeHelper.cs" />
-        <Compile Include="Engine\Utility\Helpers\LSPDFRHelper.cs" />
-        <Compile Include="Engine\Utility\Helpers\UIHelper.cs" />
-        <Compile Include="Engine\Utility\Logger.cs" />
-        <Compile Include="Engine\Utility\Resources\WeightedList.cs" />
-        <Compile Include="Main.cs" />
-        <Compile Include="Modules\EDocumentStatus.cs" />
-        <Compile Include="Modules\PedDatabase\PedData.cs" />
-        <Compile Include="Modules\PedDatabase\PedDataController.cs" />
-        <Compile Include="Modules\PedDatabase\Permits.cs" />
-        <Compile Include="Modules\VehicleDatabase\VehicleData.cs" />
-        <Compile Include="Modules\VehicleDatabase\VehicleDataController.cs" />
-        <Compile Include="Modules\VehicleDatabase\VehicleDocuments.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="Settings.cs" />
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C8C38D02-954D-4AE0-9265-6DD350BA36BA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CommonDataFramework</RootNamespace>
+    <AssemblyName>CommonDataFramework</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>latestmajor</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\CommonDataFramework.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LSPD First Response">
+      <HintPath>..\..\..\..\Desktop\References\LSPD First Response.dll</HintPath>
+    </Reference>
+    <Reference Include="RagePluginHook">
+      <HintPath>..\..\..\..\Desktop\References\RagePluginHook.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Engine\IO\IniReflector.cs" />
+    <Compile Include="Engine\Utility\Extensions\CollectionExtensions.cs" />
+    <Compile Include="Engine\Utility\Extensions\FiberExtensions.cs" />
+    <Compile Include="Engine\Utility\Extensions\PersonaExtensions.cs" />
+    <Compile Include="Engine\Utility\GlobalUsings.cs" />
+    <Compile Include="Engine\Utility\Helper.cs" />
+    <Compile Include="Engine\Utility\Helpers\DateTimeHelper.cs" />
+    <Compile Include="Engine\Utility\Helpers\LSPDFRHelper.cs" />
+    <Compile Include="Engine\Utility\Helpers\UIHelper.cs" />
+    <Compile Include="Engine\Utility\Logger.cs" />
+    <Compile Include="Engine\Utility\Resources\WeightedList.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Modules\EDocumentStatus.cs" />
+    <Compile Include="Modules\PedResidence\PedAddress.cs" />
+    <Compile Include="Modules\Postals\NearestPostalCode.cs" />
+    <Compile Include="Modules\Postals\Postal.cs" />
+    <Compile Include="Modules\Postals\PostalCodeHandler.cs" />
+    <Compile Include="Modules\Postals\PostalCodeSet.cs" />
+    <Compile Include="Modules\PedDatabase\PedData.cs" />
+    <Compile Include="Modules\PedDatabase\PedDataController.cs" />
+    <Compile Include="Modules\PedDatabase\Permits.cs" />
+    <Compile Include="Modules\VehicleDatabase\VehicleData.cs" />
+    <Compile Include="Modules\VehicleDatabase\VehicleDataController.cs" />
+    <Compile Include="Modules\VehicleDatabase\VehicleDocuments.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
     </Target>
     -->
-
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System;
 using CommonDataFramework.Modules.PedDatabase;
+using CommonDataFramework.Modules.Postals;
 using CommonDataFramework.Modules.VehicleDatabase;
 using LSPD_First_Response.Mod.API;
 
@@ -23,11 +24,11 @@ public class EntryPoint : Plugin
 
         if (onDuty)
         {
-            LoadSystems();
+            GameFiber.StartNew(LoadSystems);
         }
         else
         {
-            UnloadSystems();
+            GameFiber.StartNew(UnloadSystems);
         }
     }
 
@@ -43,6 +44,7 @@ public class EntryPoint : Plugin
         Settings.Load(DefaultPluginFolder + "/CommonDataFramework.ini");
         PedDataController.Start();
         VehicleDataController.Start();
+        PostalCodeHandler.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
     }
     
