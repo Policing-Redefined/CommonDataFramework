@@ -205,10 +205,9 @@ public class VehicleData
             if (IsStolen) // This vehicle owner must be a random ped.
             {
                 TempPed = CreateRandomPed();
-                
                 Owner = new PedData(TempPed);
-                // TODO teleport ped to address
-                
+                TempPed.SetPositionWithSnap(Owner.Address.Position);
+                TempPed.Tasks.Wander();
                 OwnerType = EVehicleOwnerType.RandomPed;
                 return true;
             }
@@ -265,7 +264,8 @@ public class VehicleData
                 // Generate random ped
                 TempPed = CreateRandomPed();
                 Owner = new PedData(TempPed);
-                // TODO teleport ped to address
+                TempPed.SetPositionWithSnap(Owner.Address.Position);
+                TempPed.Tasks.Wander();
                 
                 driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
                 if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
@@ -279,7 +279,8 @@ public class VehicleData
             {
                 TempPed = CreateRandomPed();
                 Owner = new PedData(TempPed);
-                // TODO Teleport ped to address
+                TempPed.SetPositionWithSnap(Owner.Address.Position);
+                TempPed.Tasks.Wander();
                 break;
             }
             default:
