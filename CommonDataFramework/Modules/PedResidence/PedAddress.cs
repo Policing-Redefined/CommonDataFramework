@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LSPD_First_Response.Engine.Scripting;
 
 namespace CommonDataFramework.Modules.PedResidence;
 
@@ -24,13 +25,26 @@ public class PedAddress
     public string StreetName { get; set; }
     
     /// <summary>
+    /// Gets the position of the address.
+    /// </summary>
+    /// <remarks>Note: Based on the construction of the object (e.g. through <see cref="Postal"/>) the Z-Value can be 0.</remarks>
+    public Vector3 Position { get; private set; }
+
+    /// <summary>
+    /// Gets the world zone of <see cref="Position"/>.
+    /// </summary>
+    /// <seealso cref="WorldZone"/>
+    public WorldZone Zone => LSPDFRFunctions.GetZoneAtPosition(Position);
+    
+    /// <summary>
     /// Creates a randomized address.
     /// </summary>
     public PedAddress()
     {
         int index = new Random(DateTime.Today.Millisecond).Next(PostalCodeController.PostalCodeSet.Codes.Count);
         AddressPostal = PostalCodeController.PostalCodeSet.Codes[index];
-        StreetName = World.GetStreetName(new Vector3(AddressPostal.X, AddressPostal.Y, 0));
+        StreetName = World.GetStreetName(AddressPostal);
+        Position = AddressPostal;
     }
     
     /// <summary>
@@ -42,6 +56,7 @@ public class PedAddress
     {
         AddressPostal = postal;
         StreetName = address;
+        Position = postal;
     }
 
     /// <summary>
@@ -52,5 +67,6 @@ public class PedAddress
     {
         AddressPostal = PostalCodeController.GetNearestPostalCode(position).Code;
         StreetName = World.GetStreetName(position);
+        Position = position;
     }
 }
