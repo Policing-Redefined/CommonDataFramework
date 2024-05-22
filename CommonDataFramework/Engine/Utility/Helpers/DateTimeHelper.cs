@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommonDataFramework.Utility.Helpers;
+namespace CommonDataFramework.Engine.Utility.Helpers;
 
 internal static class DateTimeHelper
 {

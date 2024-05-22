@@ -1,4 +1,7 @@
 ﻿using System;
+using CommonDataFramework.Modules.PedDatabase;
+using CommonDataFramework.Modules.Postals;
+using CommonDataFramework.Modules.VehicleDatabase;
 using LSPD_First_Response.Mod.API;
 
 namespace CommonDataFramework;
@@ -6,10 +9,27 @@ namespace CommonDataFramework;
 /// <summary/>
 public class EntryPoint : Plugin
 {
+    internal const int DatabasePruneInterval = 15 * 60 * 1000; // 15 Minutes
+    internal static bool OnDuty { get; private set; }
+    
     /// <summary/>
     public override void Initialize()
     {
-        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
+        LSPDFRFunctions.OnOnDutyStateChanged += LSPDFRFunctions_OnOnDutyStateChanged;
+    }
+
+    private static void LSPDFRFunctions_OnOnDutyStateChanged(bool onDuty)
+    {
+        OnDuty = onDuty;
+
+        if (onDuty)
+        {
+            GameFiber.StartNew(LoadSystems);
+        }
+        else
+        {
+            GameFiber.StartNew(UnloadSystems);
+        }
     }
 
     /// <summary/>
@@ -17,14 +37,34 @@ public class EntryPoint : Plugin
     {
         // ignored
     }
+
+    private static void LoadSystems()
+    {
+        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
+        Settings.Load(DefaultPluginPath + "/CommonDataFramework.ini");
+        PedDataController.Start();
+        VehicleDataController.Start();
+        PostalCodeController.Load();
+        LogDebug($"Loaded Systems of V{PluginVersion}.");
+    }
     
     private static void UnloadSystems()
     {
-        
+        AppDomain.CurrentDomain.DomainUnload -= DomainUnload;
+        PedDataController.Stop();
+        VehicleDataController.Stop();
+        InvalidateCache();
+        LogDebug($"Unloaded Systems of V{PluginVersion}.");
     }
 
     private static void DomainUnload(object sender, EventArgs e)
     {
         UnloadSystems();
+    }
+
+    private static void InvalidateCache()
+    {
+        VehicleRegistration.ResetWeights();
+        VehicleInsurance.ResetWeights();
     }
 }
