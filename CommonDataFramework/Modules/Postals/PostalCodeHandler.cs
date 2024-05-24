@@ -31,7 +31,7 @@ internal static class PostalCodeHandler
     /// <summary>
     /// The path for the postal codes xml.
     /// </summary>
-    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/XMLs";
+    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/PostalXMLs";
 
     /// <summary>
     /// Gets the postal code as a stringed number.
