@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using CommonDataFramework.Engine.IO;
 using LSPD_First_Response.Mod.API;
 using Rage;
 
@@ -18,9 +19,19 @@ internal static class PostalCodeHandler
     internal static PostalCodeSet PostalCodeSet { get; private set; } = null;
 
     /// <summary>
+    /// Gets the active postal code set.
+    /// </summary>
+    public static PostalCodeSet ActivePostalCodeSet { get; private set; } = null;
+
+    /// <summary>
+    /// Gets a list of the installed postal code sets.
+    /// </summary>
+    public static List<PostalCodeSet> PostalCodeSets { get; private set; } = new();
+
+    /// <summary>
     /// The path for the postal codes xml.
     /// </summary>
-    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/Postals.xml";
+    internal static string PostalXmlPath = @"Plugins/LSPDFR/CommonDataFramework/PostalXMLs";
 
     /// <summary>
     /// Gets the postal code as a stringed number.
@@ -75,13 +86,38 @@ internal static class PostalCodeHandler
         return null;
     }
 
+    public static string[] GetAllPostalCodeSetNames() => PostalCodeSets.Select(i => i.Name).ToArray();
+
+    public static void SetActivePostalCodeSet(string name)
+    {
+        ActivePostalCodeSet = PostalCodeSets.FirstOrDefault(i => i.Name == name);
+    }
+
     internal static void Load()
     {
-        var postalCodeSet = PostalCodeSet.FromXML(PostalXmlPath);
-        LogDebug($"postalcodeset null: {postalCodeSet == null}");
-        if (postalCodeSet != null)
+        foreach (var filename in Directory.GetFiles(PostalXmlPath).Where(x => x.EndsWith(".xml")))
         {
-            PostalCodeSet = postalCodeSet;
+            var postalCodeSet = PostalCodeSet.FromXML(filename);
+            if (postalCodeSet != null)
+            {
+                PostalCodeSets.Add(postalCodeSet);
+            }
+        }
+
+        LogDebug($"Loaded {PostalCodeSets.Count} set(s) of postal codes");
+        foreach (var entry in PostalCodeSets)
+        {
+            LogDebug($"... {entry.Name} containing {entry.Codes.Count} entries");
+        }
+
+        if (PostalCodeSets.Any())
+        {
+            ActivePostalCodeSet = PostalCodeSets.FirstOrDefault(x => x.Name == CDFSettings.PostalsSet);
+            ActivePostalCodeSet ??= PostalCodeSets[0];
+        }
+        else
+        {
+            Game.DisplaySubtitle("Could not load any postal codes.");
         }
     }
 }
