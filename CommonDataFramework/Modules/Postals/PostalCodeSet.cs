@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml.Serialization;
-using Rage;
 
 namespace CommonDataFramework.Modules.Postals;
 
@@ -31,11 +29,11 @@ internal class PostalCodeSet
     {
         try
         {
-            var serializer = new XmlSerializer(typeof(List<Postal>));
-            var name = Path.GetFileNameWithoutExtension(filename);
-            using var reader = new StreamReader(filename);
-            var codes = (List<Postal>)serializer.Deserialize(reader);
-            return new PostalCodeSet()
+            XmlSerializer serializer = new(typeof(List<Postal>));
+            string name = Path.GetFileNameWithoutExtension(filename);
+            using StreamReader reader = new(filename);
+            List<Postal> codes = (List<Postal>)serializer.Deserialize(reader);
+            return new PostalCodeSet
             {
                 Name = name,
                 Codes = codes,
@@ -53,8 +51,5 @@ internal class PostalCodeSet
     /// Overrides the ToString method.
     /// </summary>
     /// <returns>The postal code set name.</returns>
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 }

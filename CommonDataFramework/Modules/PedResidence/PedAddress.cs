@@ -1,9 +1,6 @@
 ﻿using CommonDataFramework.Modules.Postals;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CommonDataFramework.Engine.Utility.Extensions;
 using LSPD_First_Response.Engine.Scripting;
 
 namespace CommonDataFramework.Modules.PedResidence;
@@ -14,21 +11,21 @@ namespace CommonDataFramework.Modules.PedResidence;
 public class PedAddress
 {
     /// <summary>
-    /// Gets or sets the Postal of the address.
+    /// Gets the postal of the address.
     /// </summary>
     /// <seealso cref="Postal"/>
-    public Postal AddressPostal { get; set; }
+    public readonly Postal AddressPostal;
 
     /// <summary>
-    /// Gets or sets the address.
+    /// Gets the street of the address.
     /// </summary>
-    public string StreetName { get; set; }
-    
+    public readonly string StreetName;
+
     /// <summary>
     /// Gets the position of the address.
     /// </summary>
     /// <remarks>Note: Based on the construction of the object (e.g. through <see cref="Postal"/>) the Z-Value can be 0.</remarks>
-    public Vector3 Position { get; private set; }
+    public readonly Vector3 Position;
 
     /// <summary>
     /// Gets the world zone of <see cref="Position"/>.
@@ -41,8 +38,7 @@ public class PedAddress
     /// </summary>
     public PedAddress()
     {
-        int index = new Random(DateTime.Today.Millisecond).Next(PostalCodeController.PostalCodeSet.Codes.Count);
-        AddressPostal = PostalCodeController.PostalCodeSet.Codes[index];
+        AddressPostal = PostalCodeController.PostalCodeSet.Codes.Random();
         StreetName = World.GetStreetName(AddressPostal);
         Position = AddressPostal;
     }
@@ -50,12 +46,12 @@ public class PedAddress
     /// <summary>
     /// Creates an address based off a postal and a street name.
     /// </summary>
-    /// <param name="postal"></param>
-    /// <param name="address"></param>
-    public PedAddress(Postal postal, string address)
+    /// <param name="postal">The postal to use.</param>
+    /// <param name="streetName">The name of the street to use.</param>
+    public PedAddress(Postal postal, string streetName)
     {
         AddressPostal = postal;
-        StreetName = address;
+        StreetName = streetName;
         Position = postal;
     }
 

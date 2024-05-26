@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
-using CommonDataFramework.Modules.PedDatabase;
 using static CommonDataFramework.Engine.Utility.Helpers.DateTimeHelper;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -28,13 +27,13 @@ public enum EVinStatus
 /// </summary>
 public class VehicleIdentificationNumber
 {
-    internal readonly string RealNumber;
+    private readonly string _number;
 
     /// <summary>
     /// Gets the VIN string of length 17.
     /// Null if <see cref="Status"/> is set to <see cref="EVinStatus.Scratched"/>.
     /// </summary>
-    public string Number => Status == EVinStatus.Scratched ? null : RealNumber;
+    public string Number => Status == EVinStatus.Scratched ? null : _number;
 
     /// <summary>
     /// Gets or sets the status of the VIN.
@@ -45,7 +44,7 @@ public class VehicleIdentificationNumber
     internal VehicleIdentificationNumber(EVinStatus status)
     {
         Status = status;
-        RealNumber = GetRandomString(17);
+        _number = GetRandomString(17);
     }
 }
 
