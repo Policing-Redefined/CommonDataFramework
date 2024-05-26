@@ -65,7 +65,7 @@ internal static class PostalCodeController
             nearestDistance = codeDistance;
         }
 
-        return new NearestPostalCode(nearestCode, nearestDistance);
+        return nearestCode != null ? new NearestPostalCode(nearestCode, nearestDistance) : null;
     }
 
     public static string[] GetAllPostalCodeSetNames() => PostalCodeSets.Select(i => i.Name).ToArray();
