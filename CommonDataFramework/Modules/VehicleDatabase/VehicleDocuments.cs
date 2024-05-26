@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
-using CommonDataFramework.Modules.PedDatabase;
 using static CommonDataFramework.Engine.Utility.Helpers.DateTimeHelper;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -32,7 +31,7 @@ public class VehicleIdentificationNumber
 
     /// <summary>
     /// Gets the VIN string of length 17.
-    /// Null if Status is set to <see cref="EVinStatus.Scratched"/>.
+    /// Null if <see cref="Status"/> is set to <see cref="EVinStatus.Scratched"/>.
     /// </summary>
     public string Number => Status == EVinStatus.Scratched ? null : _number;
 
@@ -55,12 +54,6 @@ public class VehicleIdentificationNumber
 public abstract class VehicleDocument
 {
     private EDocumentStatus _status;
-    
-    /// <summary>
-    /// Holds the probabilities of different document states for this vehicle document.
-    /// </summary>
-    /// <seealso cref="EDocumentStatus"/>
-    private protected static WeightedList<EDocumentStatus> WeightedStatus;
 
      /// <summary>
     /// Gets or sets the status of the document.
@@ -86,31 +79,9 @@ public abstract class VehicleDocument
     public DateTime? ExpirationDate { get; private protected set; }
 
     /// <summary>
-    /// Creates an instance.
-    /// </summary>
-    /// <param name="status">Status for this document. 'Null' will randomize the status.</param>
-    private protected VehicleDocument(EDocumentStatus? status)
-    {
-        status ??= GetRandomStatus();
-        Status = (EDocumentStatus) status;
-    }
-
-    /// <summary>
     /// Updates the probabilities.
     /// </summary>
-    /// <seealso cref="WeightedStatus"/>
     private protected abstract void UpdateWeights();
-
-    internal static void ResetWeights()
-    {
-        WeightedStatus = null;
-    }
-    
-    private EDocumentStatus GetRandomStatus()
-    {
-        if (WeightedStatus == null) UpdateWeights();
-        return WeightedStatus.Random();
-    }
     
     private void HandleStatusUpdate()
     {
@@ -137,15 +108,35 @@ public abstract class VehicleDocument
 /// </summary>
 public class VehicleRegistration : VehicleDocument
 {
-    internal VehicleRegistration(EDocumentStatus? status) : base(status) { }
+    /// <summary>
+    /// Holds the probabilities of different document states for this vehicle document.
+    /// </summary>
+    /// <seealso cref="EDocumentStatus"/>
+    private static WeightedList<EDocumentStatus> _weightedStatus;
+
+    internal VehicleRegistration(EDocumentStatus? status)
+    {
+        status ??= GetRandomStatus();
+        Status = (EDocumentStatus) status;
+    }
+    
+    internal static void ResetWeights()
+    {
+        _weightedStatus = null;
+    }
+    
+    private EDocumentStatus GetRandomStatus()
+    {
+        if (_weightedStatus == null) UpdateWeights();
+        return _weightedStatus.Random();
+    }
 
     /// <summary>
     /// Updates the probabilities.
     /// </summary>
-    /// <seealso cref="VehicleDocument.WeightedStatus"/>
     private protected override void UpdateWeights()
     {
-        WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleRegValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleRegExpiredChance),
@@ -162,15 +153,35 @@ public class VehicleRegistration : VehicleDocument
 /// </summary>
 public class VehicleInsurance : VehicleDocument
 {
-    internal VehicleInsurance(EDocumentStatus? status) : base(status) { }
+    /// <summary>
+    /// Holds the probabilities of different document states for this vehicle document.
+    /// </summary>
+    /// <seealso cref="EDocumentStatus"/>
+    private static WeightedList<EDocumentStatus> _weightedStatus;
     
+    internal VehicleInsurance(EDocumentStatus? status)
+    {
+        status ??= GetRandomStatus();
+        Status = (EDocumentStatus) status;
+    }
+    
+    internal static void ResetWeights()
+    {
+        _weightedStatus = null;
+    }
+    
+    private EDocumentStatus GetRandomStatus()
+    {
+        if (_weightedStatus == null) UpdateWeights();
+        return _weightedStatus.Random();
+    }
+
     /// <summary>
     /// Updates the probabilities.
     /// </summary>
-    /// <seealso cref="VehicleDocument.WeightedStatus"/>
     private protected override void UpdateWeights()
     {
-        WeightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
+        _weightedStatus = new WeightedList<EDocumentStatus>(new List<WeightedListItem<EDocumentStatus>>
         {
             new(EDocumentStatus.Valid, CDFSettings.VehicleInsValidChance),
             new(EDocumentStatus.Expired, CDFSettings.VehicleInsExpiredChance),

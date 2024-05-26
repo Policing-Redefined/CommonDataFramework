@@ -70,12 +70,12 @@ public static class VehicleDataController
             {
                 GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
 
-                int deleted = 0;
+                int removed = 0;
                 foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
                 {
                     if (entry.Key.Exists()) continue;
                     Database.Remove(entry.Key);
-                    deleted++;
+                    removed++;
 
                     // Dismiss temporary ped, don't reset the field though
                     if (entry.Value.TempPed.Exists())
@@ -84,7 +84,7 @@ public static class VehicleDataController
                     }
                 }
                 
-                LogDebug($"VehicleDataController: Deleted {deleted} entries.");
+                LogDebug($"VehicleDataController: Removed {removed}.");
             }
         }
         catch (ThreadAbortException)
