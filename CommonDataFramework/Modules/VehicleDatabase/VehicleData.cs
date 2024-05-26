@@ -25,35 +25,6 @@ public class VehicleData
     /// </summary>
     public readonly Vehicle Holder;
 
-    private string _licensePlate; // License plate cache
-    /// <summary>
-    /// Gets or sets the license plate of this vehicle.
-    /// Points to <see cref="Rage.Vehicle.LicensePlate"/>.
-    /// If the vehicle does no longer exist, it returns the last cached license plate.
-    /// </summary>
-    /// <remarks>If the vehicle does not longer exist, the 'set' method won't do anything.</remarks>
-    public string LicensePlate
-    {
-        get
-        {
-            if (Holder.Exists()) // Update license plate cache
-            {
-                _licensePlate = Holder.LicensePlate;
-            }
-
-            return _licensePlate;
-        }
-        set
-        {
-            if (Holder.Exists())
-            {
-                Holder.LicensePlate = value;
-            }
-
-            _licensePlate = value;
-        }
-    }
-
     private bool _isStolen; // Stolen cache
     /// <summary>
     /// Gets or sets whether the vehicle is stolen or not.
@@ -88,7 +59,6 @@ public class VehicleData
             }
         }
     }
-    
     
     /// <summary>
     /// Gets the owner of this vehicle.
@@ -147,7 +117,6 @@ public class VehicleData
     internal VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;
-        _licensePlate = vehicle.LicensePlate;
         _isStolen = vehicle.IsStolen;
         SetVehicleOwner(null);
 

@@ -28,13 +28,13 @@ public enum EVinStatus
 /// </summary>
 public class VehicleIdentificationNumber
 {
-    private readonly string _number;
+    internal readonly string RealNumber;
 
     /// <summary>
     /// Gets the VIN string of length 17.
-    /// Null if Status is set to <see cref="EVinStatus.Scratched"/>.
+    /// Null if <see cref="Status"/> is set to <see cref="EVinStatus.Scratched"/>.
     /// </summary>
-    public string Number => Status == EVinStatus.Scratched ? null : _number;
+    public string Number => Status == EVinStatus.Scratched ? null : RealNumber;
 
     /// <summary>
     /// Gets or sets the status of the VIN.
@@ -45,7 +45,7 @@ public class VehicleIdentificationNumber
     internal VehicleIdentificationNumber(EVinStatus status)
     {
         Status = status;
-        _number = GetRandomString(17);
+        RealNumber = GetRandomString(17);
     }
 }
 

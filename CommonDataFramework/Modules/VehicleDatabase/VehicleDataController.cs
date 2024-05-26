@@ -69,7 +69,7 @@ public static class VehicleDataController
             GameFiber.Sleep(timeUntil);
             Database.Remove(vehicleData.Holder);
             DeletionQueue.Remove(vehicleData.Holder);
-            LogDebug($"VehicleDataController: '{vehicleData.LicensePlate}' was deleted.");
+            LogDebug($"VehicleDataController: '{vehicleData.Vin.RealNumber}' was deleted.");
         });
 
         DeletionQueue[vehicleData.Holder] = deletion;
