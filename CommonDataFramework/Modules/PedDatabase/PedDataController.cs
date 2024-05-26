@@ -61,33 +61,18 @@ public static class PedDataController
         LogDebug("Stop: PedDataController.");
     }
 
-    private static void ScheduleForDeletion(PedData pedData, int timeUntil = 60000 * 5) // 5 Minutes
-    {
-        if (pedData.IsScheduledForDeletion) return;
-        pedData.IsScheduledForDeletion = true;
-        
-        GameFiber deletion = GameFiber.StartNew(() =>
-        {
-            GameFiber.Sleep(timeUntil);
-            Database.Remove(pedData.Holder);
-            DeletionQueue.Remove(pedData.Holder);
-            LogDebug($"PedDataController: '{pedData.FullName}' was deleted.");
-        });
-
-        DeletionQueue[pedData.Holder] = deletion;
-    }
-
     private static void Process()
     {
         try
         {
             while (EntryPoint.OnDuty)
             {
-                GameFiber.Yield();
+                GameFiber.Sleep(EntryPoint.DefaultDatabaseInterval);
                 foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
                 {
-                    if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;
-                    ScheduleForDeletion(entry.Value);
+                    if (entry.Key.Exists()) continue;
+                    Database.Remove(entry.Key);
+                    LogDebug($"PedDataController: '{entry.Value.FullName}' was removed.");
                 }
             }
         }

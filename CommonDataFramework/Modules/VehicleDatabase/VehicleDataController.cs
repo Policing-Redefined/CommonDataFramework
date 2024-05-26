@@ -59,33 +59,18 @@ public static class VehicleDataController
         LogDebug("Stop: VehicleDataController.");
     }
 
-    private static void ScheduleForDeletion(VehicleData vehicleData, int timeUntil = 60000 * 5) // 5 Minutes
-    {
-        if (vehicleData.IsScheduledForDeletion) return;
-        vehicleData.IsScheduledForDeletion = true;
-        
-        GameFiber deletion = GameFiber.StartNew(() =>
-        {
-            GameFiber.Sleep(timeUntil);
-            Database.Remove(vehicleData.Holder);
-            DeletionQueue.Remove(vehicleData.Holder);
-            LogDebug($"VehicleDataController: '{vehicleData.Vin.RealNumber}' was deleted.");
-        });
-
-        DeletionQueue[vehicleData.Holder] = deletion;
-    }
-
     private static void Process()
     {
         try
         {
             while (EntryPoint.OnDuty)
             {
-                GameFiber.Yield();
+                GameFiber.Sleep(EntryPoint.DefaultDatabaseInterval);
                 foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
                 {
-                    if (entry.Key.Exists() || entry.Value.IsScheduledForDeletion) continue;
-                    ScheduleForDeletion(entry.Value);
+                    if (entry.Key.Exists()) continue;
+                    Database.Remove(entry.Key);
+                    LogDebug($"VehicleDataController: '{entry.Value.Vin.RealNumber}' was removed.");
                 }
             }
         }

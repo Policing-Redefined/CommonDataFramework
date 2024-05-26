@@ -9,6 +9,8 @@ namespace CommonDataFramework;
 /// <summary/>
 public class EntryPoint : Plugin
 {
+    internal const int DefaultDatabaseInterval = 1000 * 60 * 15; // 15 Minutes
+    
     internal static bool OnDuty { get; private set; }
     
     /// <summary/>

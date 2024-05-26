@@ -108,12 +108,6 @@ public class VehicleData
     /// <seealso cref="VehicleInsurance"/>
     public readonly VehicleInsurance Insurance;
     
-    /// <summary>
-    /// Once the vehicle that owns this vehicle data stops existing, the vehicle data is scheduled for deletion.
-    /// This field is set to 'true' once the vehicle data is scheduled for deletion.
-    /// </summary>
-    public bool IsScheduledForDeletion { get; internal set; }
-    
     internal VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;
