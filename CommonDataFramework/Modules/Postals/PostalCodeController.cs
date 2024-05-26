@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using LSPD_First_Response.Mod.API;
-using Rage;
 
 namespace CommonDataFramework.Modules.Postals;
 
@@ -13,14 +10,24 @@ namespace CommonDataFramework.Modules.Postals;
 internal static class PostalCodeController
 {
     /// <summary>
-    /// The path for the postal codes xml.
+    /// Gets the active postal code set.
     /// </summary>
-    private const string PostalXmlPath = DefaultPluginFolder + "/Postals.xml";
-    
+    internal static PostalCodeSet PostalCodeSet { get; private set; } = null;
+
     /// <summary>
     /// Gets the active postal code set.
     /// </summary>
-    internal static PostalCodeSet PostalCodeSet { get; private set; }
+    public static PostalCodeSet ActivePostalCodeSet { get; private set; }
+
+    /// <summary>
+    /// Gets a list of the installed postal code sets.
+    /// </summary>
+    public static List<PostalCodeSet> PostalCodeSets { get; private set; } = [];
+
+    /// <summary>
+    /// The path for the postal codes xml.
+    /// </summary>
+    internal const string PostalXmlPath = DefaultPluginFolder + "/PostalXMLs";
 
     /// <summary>
     /// Gets the postal code as a stringed number.
@@ -29,16 +36,9 @@ internal static class PostalCodeController
     /// <returns>The code.</returns>
     public static string GetPostalCode(Vector3 position)
     {
-        if (PostalCodeSet != null)
-        {
-            NearestPostalCode code = GetNearestPostalCode(position);
-            if (code != null)
-            {
-                return code.Code.Number;
-            }
-        }
-
-        return string.Empty;
+        if (PostalCodeSet == null) return "";
+        NearestPostalCode code = GetNearestPostalCode(position);
+        return code != null ? code.Code.Number : string.Empty;
     }
 
     /// <summary>
@@ -65,16 +65,40 @@ internal static class PostalCodeController
             nearestDistance = codeDistance;
         }
 
-        return nearestCode != null ? new NearestPostalCode(nearestCode, nearestDistance) : null;
+        return new NearestPostalCode(nearestCode, nearestDistance);
+    }
+
+    public static string[] GetAllPostalCodeSetNames() => PostalCodeSets.Select(i => i.Name).ToArray();
+
+    public static void SetActivePostalCodeSet(string name)
+    {
+        ActivePostalCodeSet = PostalCodeSets.FirstOrDefault(i => i.Name == name);
     }
 
     internal static void Load()
     {
-        PostalCodeSet postalCodeSet = PostalCodeSet.FromXML(PostalXmlPath);
-        LogDebug($"PostalCodeSet: Null: {postalCodeSet == null}.");
-        if (postalCodeSet != null)
+        foreach (string filename in Directory.GetFiles(PostalXmlPath).Where(x => x.EndsWith(".xml")))
         {
-            PostalCodeSet = postalCodeSet;
+            PostalCodeSet postalCodeSet = PostalCodeSet.FromXML(filename);
+            if (postalCodeSet != null)
+            {
+                PostalCodeSets.Add(postalCodeSet);
+            }
         }
+
+        LogDebug($"Loaded {PostalCodeSets.Count} set(s) of postal codes.");
+        foreach (PostalCodeSet entry in PostalCodeSets)
+        {
+            LogDebug($"... {entry.Name} containing {entry.Codes.Count} entries.");
+        }
+
+        if (PostalCodeSets.Count != 0)
+        {
+            ActivePostalCodeSet = PostalCodeSets.FirstOrDefault(x => x.Name == CDFSettings.PostalsSet);
+            ActivePostalCodeSet ??= PostalCodeSets[0];
+            return;
+        }
+        
+        Game.DisplaySubtitle("~b~[PR]~s~ Could ~r~not~s~ load any postal codes.");
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Modules.PedResidence;
 using LSPD_First_Response;
 using LSPD_First_Response.Engine.Scripting.Entities;
@@ -11,7 +10,7 @@ namespace CommonDataFramework.Modules.PedDatabase;
 /// </summary>
 public class PedData
 {
-    internal Persona Persona { get; private set; }
+    private readonly Persona _persona;
     
     /// <summary>
     /// The ped this data belongs to.
@@ -23,12 +22,28 @@ public class PedData
     /// False if <see cref="Holder"/> is null.
     /// </summary>
     public bool HasRealPed => Holder != null;
-    
+
+    private DateTime? _dlExpiration;
     /// <summary>
     /// The expiration date of the ped's drivers license (if the ped owns one).
     /// </summary>
-    public DateTime? DriversLicenseExpiration { get; private set; }
+    public DateTime? DriversLicenseExpiration
+    {
+        get
+        {
+            if (_dlState != _persona.ELicenseState) // Compare last cached state to current persona as it might have been changed through external ways
+                HandlePersonaUpdate();
+            return _dlExpiration;
+        }
+    }
 
+    /// <summary>
+    /// Gets or sets the residence of the ped.
+    /// </summary>
+    /// <seealso cref="PedAddress"/>
+    public PedAddress Address { get; set; }
+
+    private ELicenseState _dlState;
     /// <summary>
     /// Gets or sets the current state of the ped's drivers license.
     /// This also affects <see cref="DriversLicenseExpiration"/>.
@@ -36,7 +51,7 @@ public class PedData
     /// <seealso cref="ELicenseState"/>
     public ELicenseState DriversLicenseState
     {
-        get => Persona.ELicenseState;
+        get => _persona.ELicenseState;
         set => SetDriversLicenseState(value);
     }
     
@@ -45,8 +60,8 @@ public class PedData
     /// </summary>
     public string Firstname
     {
-        get => Persona.Forename;
-        set => Persona.Forename = value;
+        get => _persona.Forename;
+        set => _persona.Forename = value;
     }
 
     /// <summary>
@@ -54,22 +69,22 @@ public class PedData
     /// </summary>
     public string Lastname
     {
-        get => Persona.Surname;
-        set => Persona.Surname = value;
+        get => _persona.Surname;
+        set => _persona.Surname = value;
     }
     
     /// <summary>
     /// Returns the full name of the ped.
     /// </summary>
-    public string FullName => Persona.FullName;
+    public string FullName => _persona.FullName;
 
     /// <summary>
     /// Gets or sets the birthday of the ped.
     /// </summary>
     public DateTime Birthday
     {
-        get => Persona.Birthday;
-        set => Persona.Birthday = value;
+        get => _persona.Birthday;
+        set => _persona.Birthday = value;
     }
 
     /// <summary>
@@ -77,8 +92,8 @@ public class PedData
     /// </summary>
     public int Citations
     {
-        get => Persona.Citations;
-        set => Persona.Citations = value;
+        get => _persona.Citations;
+        set => _persona.Citations = value;
     }
     
     /// <summary>
@@ -86,8 +101,8 @@ public class PedData
     /// </summary>
     public int TimesStopped
     {
-        get => Persona.TimesStopped;
-        set => Persona.TimesStopped = value;
+        get => _persona.TimesStopped;
+        set => _persona.TimesStopped = value;
     }
 
     /// <summary>
@@ -95,8 +110,8 @@ public class PedData
     /// </summary>
     public Gender Gender
     {
-        get => Persona.Gender;
-        set => Persona.Gender = value;
+        get => _persona.Gender;
+        set => _persona.Gender = value;
     }
 
     /// <summary>
@@ -104,8 +119,8 @@ public class PedData
     /// </summary>
     public bool Wanted
     {
-        get => Persona.Wanted;
-        set => Persona.Wanted = value;
+        get => _persona.Wanted;
+        set => _persona.Wanted = value;
     }
 
     /// <summary>
@@ -113,15 +128,15 @@ public class PedData
     /// </summary>
     public string AdvisoryText
     {
-        get => Persona.AdvisoryText;
-        set => Persona.AdvisoryText = value;
+        get => _persona.AdvisoryText;
+        set => _persona.AdvisoryText = value;
     }
 
     /// <summary>
     /// Gets the model age of this ped.
     /// </summary>
     /// <seealso cref="PedModelAge"/>
-    public PedModelAge ModelAge => Persona.ModelAge;
+    public PedModelAge ModelAge => _persona.ModelAge;
 
     /// <summary>
     /// Gets or sets the runtime information for this ped.
@@ -129,15 +144,15 @@ public class PedData
     /// <seealso cref="RuntimePersonaInformation"/>
     public RuntimePersonaInformation RuntimeInfo
     {
-        get => Persona.RuntimeInfo;
-        set => Persona.RuntimeInfo = value;
+        get => _persona.RuntimeInfo;
+        set => _persona.RuntimeInfo = value;
     }
 
     /// <summary>
     /// Gets the wanted information for this ped.
     /// </summary>
     /// <seealso cref="WantedInformation"/>
-    public WantedInformation WantedInfo => Persona.WantedInformation;
+    public WantedInformation WantedInfo => _persona.WantedInformation;
     
     /// <summary>
     /// Gets or sets whether the ped is on parole.
@@ -168,12 +183,6 @@ public class PedData
     public readonly WeaponPermit WeaponPermit;
     
     /// <summary>
-    /// Gets or sets the address of the ped.
-    /// </summary>
-    /// <seealso cref="PedAddress"/>
-    public PedAddress Address { get; set; }
-    
-    /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
     /// </summary>
     private PedData()
@@ -192,14 +201,14 @@ public class PedData
     internal PedData(Ped holder) : this()
     {
         Holder = holder;
-        Persona = LSPDFRFunctions.GetPersonaForPed(holder).Clone();
+        _persona = LSPDFRFunctions.GetPersonaForPed(holder);
         HandlePersonaUpdate();
         PedDataController.Database.Add(holder, this);
     }
 
     internal PedData(Persona persona) : this()
     {
-        Persona = persona;
+        _persona = persona;
         HandlePersonaUpdate();
     }
     
@@ -207,37 +216,32 @@ public class PedData
     /// Combines the full name and birthday of this ped data into a string.
     /// </summary>
     /// <returns>The string with fullname and date of birth.</returns>
-    public string ToNameAndDOBString() => Persona.ToNameAndDOBString();
-
-    internal void ForceSetPersona(Persona persona)
-    {
-        Persona = persona;
-        HandlePersonaUpdate();
-    }
+    public string ToNameAndDOBString() => _persona.ToNameAndDOBString();
     
     private void SetDriversLicenseState(ELicenseState licenseState)
     {
-        if (DriversLicenseState == licenseState) return; // Don't update it if it's already that state.
-        Persona.ELicenseState = licenseState;
+        if (DriversLicenseState == licenseState) return; // Don't update it if it's already that state
+        _persona.ELicenseState = licenseState;
         HandlePersonaUpdate();
     }
 
     private void HandlePersonaUpdate()
     {
         // Update drivers license
-        switch (Persona.ELicenseState)
+        _dlState = _persona.ELicenseState;
+        switch (_persona.ELicenseState)
         {
             case ELicenseState.Suspended:
             case ELicenseState.Expired:
-                DriversLicenseExpiration = GetRandomDateTimeWithinRange(4);
+                _dlExpiration = GetRandomDateTimeWithinRange(4);
                 break;
             case ELicenseState.Valid:
-                DriversLicenseExpiration = GetRandomDateTimeWithinRange(CurrentDate.AddYears(4));
+                _dlExpiration = GetRandomDateTimeWithinRange(CurrentDate.AddYears(4));
                 break;
             case ELicenseState.None:
             case ELicenseState.Unlicensed:
             default:
-                DriversLicenseExpiration = null;
+                _dlExpiration = null;
                 break;
         }
         

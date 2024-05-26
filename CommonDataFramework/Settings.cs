@@ -5,6 +5,7 @@ namespace CommonDataFramework;
 
 [IniReflectorSection("Vehicle")]
 [IniReflectorSection("Ped")]
+[IniReflectorSection("Postals")]
 internal class Settings
 {
     #region DEFAULT
@@ -44,6 +45,9 @@ internal class Settings
     // Ped
     internal int PedProbationChance;
     internal int PedParoleChance;
+
+    // Postals
+    internal string PostalsSet;
     
     #region STATIC
     

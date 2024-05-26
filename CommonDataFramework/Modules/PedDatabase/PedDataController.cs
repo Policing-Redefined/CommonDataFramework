@@ -60,15 +60,15 @@ public static class PedDataController
             {
                 GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
 
-                int deleted = 0;
+                int removed = 0;
                 foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
                 {
                     if (entry.Key.Exists()) continue;
                     Database.Remove(entry.Key);
-                    deleted++;
+                    removed++;
                 }
                 
-                LogDebug($"PedDataController: Deleted {deleted} entries.");
+                LogDebug($"PedDataController: Removed {removed}.");
             }
         }
         catch (ThreadAbortException)
