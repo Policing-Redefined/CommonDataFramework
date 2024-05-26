@@ -41,7 +41,7 @@ public class EntryPoint : Plugin
     private static void LoadSystems()
     {
         AppDomain.CurrentDomain.DomainUnload += DomainUnload;
-        Settings.Load(DefaultPluginPath + "/CommonDataFramework.ini");
+        Settings.Load(DefaultPluginFolder + "/Settings.ini");
         PedDataController.Start();
         VehicleDataController.Start();
         PostalCodeController.Load();

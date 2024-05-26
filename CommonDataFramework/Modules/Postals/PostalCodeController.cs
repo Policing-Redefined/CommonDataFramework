@@ -99,6 +99,6 @@ internal static class PostalCodeController
             return;
         }
         
-        Game.DisplaySubtitle("~b~[PR]~s~ Could ~r~not~s~ load any postal codes.");
+        Game.DisplaySubtitle("~b~[CDF]~s~ Could ~r~not~s~ load any postal codes.");
     }
 }
