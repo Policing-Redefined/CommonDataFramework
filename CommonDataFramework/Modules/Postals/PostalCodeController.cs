@@ -12,11 +12,6 @@ internal static class PostalCodeController
     /// <summary>
     /// Gets the active postal code set.
     /// </summary>
-    internal static PostalCodeSet PostalCodeSet { get; private set; } = null;
-
-    /// <summary>
-    /// Gets the active postal code set.
-    /// </summary>
     public static PostalCodeSet ActivePostalCodeSet { get; private set; }
 
     /// <summary>
@@ -36,7 +31,7 @@ internal static class PostalCodeController
     /// <returns>The code.</returns>
     public static string GetPostalCode(Vector3 position)
     {
-        if (PostalCodeSet == null) return "";
+        if (ActivePostalCodeSet == null) return "";
         NearestPostalCode code = GetNearestPostalCode(position);
         return code != null ? code.Code.Number : string.Empty;
     }
@@ -48,7 +43,7 @@ internal static class PostalCodeController
     /// <returns>The nearest postal code.</returns>
     public static NearestPostalCode GetNearestPostalCode(Vector3 position)
     {
-        IEnumerable<Postal> iter = PostalCodeSet.Codes.Where(code =>
+        IEnumerable<Postal> iter = ActivePostalCodeSet.Codes.Where(code =>
             code.X > position.X - 500 &&
             code.X < position.X + 500 &&
             code.Y > position.Y - 500 &&

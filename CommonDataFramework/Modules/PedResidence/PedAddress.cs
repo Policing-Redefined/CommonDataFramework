@@ -38,7 +38,7 @@ public class PedAddress
     /// </summary>
     public PedAddress()
     {
-        AddressPostal = PostalCodeController.PostalCodeSet.Codes.Random();
+        AddressPostal = PostalCodeController.ActivePostalCodeSet.Codes.Random();
         StreetName = World.GetStreetName(AddressPostal);
         Position = AddressPostal;
     }
