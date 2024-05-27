@@ -216,7 +216,7 @@ internal class IniReflector
         return !valueType.IsEnum
             ? _iniFile.Read(valueType, sectionName, keyName, defaultValue)
             // RPH has issues reading enums for some reason so we have to read it as a string
-            : Enum.Parse(valueType, _iniFile.ReadString(sectionName, keyName, defaultValue.ToString()));
+            : Enum.Parse(valueType, _iniFile.ReadString(sectionName, keyName, defaultValue.ToString()).Trim());
     }
 }
 
