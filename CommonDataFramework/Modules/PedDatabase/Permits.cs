@@ -54,8 +54,9 @@ public class Permit
     /// <summary>
     /// The expiration date of the permit.
     /// Can only be changed by changing <see cref="Status"/>.
+    /// Null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
     /// </summary>
-    public DateTime ExpirationDate { get; private set; }
+    public DateTime? ExpirationDate { get; private set; }
 
     internal Permit(EDocumentStatus? status)
     {
@@ -71,9 +72,9 @@ public class Permit
         {
             EDocumentStatus.Revoked => GetRandomDateTimeWithinRange(4),
             EDocumentStatus.Expired => GetRandomDateTimeWithinRange(4),
-            EDocumentStatus.None => GetRandomDateTimeWithinRange(4),
             EDocumentStatus.Valid => GetRandomDateTimeWithinRange(CurrentDate.AddYears(4)),
-            _ => ExpirationDate
+            EDocumentStatus.None => null,
+            _ => null
         };
     }
 }
