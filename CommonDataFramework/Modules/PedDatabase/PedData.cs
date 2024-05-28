@@ -194,7 +194,13 @@ public class PedData
         IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
         if (!IsOnProbation)
         {
-            IsOnParole = GetRandomChance(CDFSettings.PedParoleChance);
+            // PedProbationChance = 0.25 by default; PedParoleChance = 0.3 by default
+            // PedParoleChance represents the probability for a ped not being on probation but on parole, mathematically (A = Probation, B = Parole):
+            // PedParoleChance = P(NotA and B) = 0.3
+            // So we need to use conditional probability:
+            // IsOnParole = P(B | NotA) = P(NotA and B) / P(NotA)
+            // Example with default values: IsOnParole = 0.3 / (1 - 0.25) = 0.4
+            IsOnParole = GetRandomChance(CDFSettings.PedParoleChance / (100 - CDFSettings.PedProbationChance)); // Our values range from 0 to 100, instead of 0 to 1
         }
     }
 
