@@ -190,24 +190,31 @@ public class PedData
         HuntingPermit = new Permit(null);
         FishingPermit = new Permit(null);
         WeaponPermit = new WeaponPermit(null, null);
-        Address = new PedAddress();
         IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
         if (!IsOnProbation)
         {
-            IsOnParole = GetRandomChance(CDFSettings.PedParoleChance);
+            // PedProbationChance = 0.25 by default; PedParoleChance = 0.3 by default
+            // PedParoleChance represents the probability for a ped not being on probation but on parole, mathematically (A = Probation, B = Parole):
+            // PedParoleChance = P(NotA and B) = 0.3
+            // So we need to use conditional probability:
+            // IsOnParole = P(B | NotA) = P(NotA and B) / P(NotA)
+            // Example with default values: IsOnParole = 0.3 / (1 - 0.25) = 0.4
+            IsOnParole = GetRandomChance(CDFSettings.PedParoleChance / (100 - CDFSettings.PedProbationChance)); // Our values range from 0 to 100, instead of 0 to 1
         }
     }
 
-    internal PedData(Ped holder) : this()
+    internal PedData(Ped holder, PedAddress address = null) : this()
     {
         Holder = holder;
+        Address = address ?? new PedAddress();
         _persona = LSPDFRFunctions.GetPersonaForPed(holder);
         HandlePersonaUpdate();
         PedDataController.Database.Add(holder, this);
     }
 
-    internal PedData(Persona persona) : this()
+    internal PedData(Persona persona, PedAddress address = null) : this()
     {
+        Address = address ?? new PedAddress();
         _persona = persona;
         HandlePersonaUpdate();
     }

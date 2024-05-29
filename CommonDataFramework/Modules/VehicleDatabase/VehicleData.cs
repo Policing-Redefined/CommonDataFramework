@@ -3,6 +3,7 @@ using System.ComponentModel;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
 using CommonDataFramework.Modules.PedDatabase;
+using CommonDataFramework.Modules.PedResidence;
 using LSPD_First_Response.Engine.Scripting.Entities;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -29,7 +30,8 @@ public class VehicleData
     /// <summary>
     /// Gets or sets whether the vehicle is stolen or not.
     /// Points to <see cref="Rage.Vehicle.IsStolen"/>.
-    /// If the vehicle does no longer exist, it returns the last cached state.
+    /// If the vehicle does no longer exist, it gets and sets the last cached state, meaning you can still mark a vehicle
+    /// as stolen within CDF using this property.
     /// Changing this might change <see cref="Owner"/> and <see cref="OwnerType"/>.
     /// </summary>
     public bool IsStolen
@@ -99,6 +101,11 @@ public class VehicleData
             {
                 TempPed.Dismiss();
                 TempPed = null; // Reset the field as the ped is no longer needed
+            }
+
+            if (Holder.Exists()) // Set the owner within LSPDFR's API
+            {
+                LSPDFRFunctions.SetVehicleOwnerName(Holder, value == EVehicleOwnerType.Government ? "Government" : Owner.FullName);
             }
         }
     }
@@ -174,10 +181,7 @@ public class VehicleData
             
             if (IsStolen) // This vehicle owner must be a random ped.
             {
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 OwnerType = EVehicleOwnerType.RandomPed;
                 return true;
             }
@@ -232,10 +236,7 @@ public class VehicleData
                 PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
                 
                 // Generate random ped
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 
                 driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
                 if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
@@ -247,10 +248,7 @@ public class VehicleData
             }
             case EVehicleOwnerType.RandomPed:
             {
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 break;
             }
             default:
@@ -276,10 +274,22 @@ public class VehicleData
         };
     }
 
-    private static Ped CreateRandomPed() => new()
+    private void UseTemporaryPed()
     {
-        IsPersistent = true
-    };
+        // Spawn ped at address position
+        PedAddress address = new();
+        TempPed = new Ped(address.Position)
+        {
+            IsPersistent = true
+        };
+        
+        // Set owner
+        Owner = new PedData(TempPed, address);
+        
+        // Teleport them above the ground
+        TempPed.SetPositionWithSnap(address.Position);
+        TempPed.Tasks.Wander();
+    }
 }
 
 /// <summary>
@@ -312,13 +322,17 @@ public enum EVehicleOwnerType
     /// <summary>
     /// This vehicle is owned by the government.
     /// </summary>
+    /// <remarks><see cref="VehicleData.Owner"/> does not have a valid ped (<see cref="PedData.HasRealPed"/> is <see cref="System.Boolean.False"/>).</remarks>
+    /// <example>Generally emergency vehicles</example>
     Government,
     
+    /*
     /// <summary>
     /// This vehicle is owner by a company.
     /// </summary>
     /// <example>LSIA, Bus company...</example>
     Company,
+    */
     
     /// <summary>
     /// This vehicles owner <see cref="PedData"/> has been set manually.
