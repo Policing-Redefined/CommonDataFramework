@@ -3,6 +3,7 @@ using System.ComponentModel;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
 using CommonDataFramework.Modules.PedDatabase;
+using CommonDataFramework.Modules.PedResidence;
 using LSPD_First_Response.Engine.Scripting.Entities;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -174,10 +175,7 @@ public class VehicleData
             
             if (IsStolen) // This vehicle owner must be a random ped.
             {
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 OwnerType = EVehicleOwnerType.RandomPed;
                 return true;
             }
@@ -232,10 +230,7 @@ public class VehicleData
                 PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
                 
                 // Generate random ped
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 
                 driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
                 if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
@@ -247,10 +242,7 @@ public class VehicleData
             }
             case EVehicleOwnerType.RandomPed:
             {
-                TempPed = CreateRandomPed();
-                Owner = new PedData(TempPed);
-                TempPed.SetPositionWithSnap(Owner.Address.Position);
-                TempPed.Tasks.Wander();
+                UseTemporaryPed();
                 break;
             }
             default:
@@ -276,10 +268,22 @@ public class VehicleData
         };
     }
 
-    private static Ped CreateRandomPed() => new()
+    private void UseTemporaryPed()
     {
-        IsPersistent = true
-    };
+        // Spawn ped at address position
+        PedAddress address = new();
+        TempPed = new Ped(address.Position)
+        {
+            IsPersistent = true
+        };
+        
+        // Set owner
+        Owner = new PedData(TempPed, address);
+        
+        // Teleport them above the ground
+        TempPed.SetPositionWithSnap(address.Position);
+        TempPed.Tasks.Wander();
+    }
 }
 
 /// <summary>

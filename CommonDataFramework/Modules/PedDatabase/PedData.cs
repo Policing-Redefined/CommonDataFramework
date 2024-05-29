@@ -190,7 +190,6 @@ public class PedData
         HuntingPermit = new Permit(null);
         FishingPermit = new Permit(null);
         WeaponPermit = new WeaponPermit(null, null);
-        Address = new PedAddress();
         IsOnProbation = GetRandomChance(CDFSettings.PedProbationChance);
         if (!IsOnProbation)
         {
@@ -204,16 +203,18 @@ public class PedData
         }
     }
 
-    internal PedData(Ped holder) : this()
+    internal PedData(Ped holder, PedAddress address = null) : this()
     {
         Holder = holder;
+        Address = address ?? new PedAddress();
         _persona = LSPDFRFunctions.GetPersonaForPed(holder);
         HandlePersonaUpdate();
         PedDataController.Database.Add(holder, this);
     }
 
-    internal PedData(Persona persona) : this()
+    internal PedData(Persona persona, PedAddress address = null) : this()
     {
+        Address = address ?? new PedAddress();
         _persona = persona;
         HandlePersonaUpdate();
     }
