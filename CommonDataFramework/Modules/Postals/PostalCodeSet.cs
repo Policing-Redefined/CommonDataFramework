@@ -41,7 +41,7 @@ internal class PostalCodeSet
         }
         catch (Exception ex)
         {
-            LogDebug(ex.ToString());
+            LogException(ex, $"PostalCodeSet.cs: FromXML (File: {filename})");
         }
 
         return null;
