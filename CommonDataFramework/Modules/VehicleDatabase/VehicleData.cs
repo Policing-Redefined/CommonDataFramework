@@ -30,7 +30,8 @@ public class VehicleData
     /// <summary>
     /// Gets or sets whether the vehicle is stolen or not.
     /// Points to <see cref="Rage.Vehicle.IsStolen"/>.
-    /// If the vehicle does no longer exist, it returns the last cached state.
+    /// If the vehicle does no longer exist, it gets and sets the last cached state, meaning you can still mark a vehicle
+    /// as stolen within CDF using this property.
     /// Changing this might change <see cref="Owner"/> and <see cref="OwnerType"/>.
     /// </summary>
     public bool IsStolen
@@ -100,6 +101,11 @@ public class VehicleData
             {
                 TempPed.Dismiss();
                 TempPed = null; // Reset the field as the ped is no longer needed
+            }
+
+            if (Holder.Exists()) // Set the owner within LSPDFR's API
+            {
+                LSPDFRFunctions.SetVehicleOwnerName(Holder, value == EVehicleOwnerType.Government ? "Government" : Owner.FullName);
             }
         }
     }
@@ -316,13 +322,17 @@ public enum EVehicleOwnerType
     /// <summary>
     /// This vehicle is owned by the government.
     /// </summary>
+    /// <remarks><see cref="VehicleData.Owner"/> does not have a valid ped (<see cref="PedData.HasRealPed"/> is <see cref="System.Boolean.False"/>).</remarks>
+    /// <example>Generally emergency vehicles</example>
     Government,
     
+    /*
     /// <summary>
     /// This vehicle is owner by a company.
     /// </summary>
     /// <example>LSIA, Bus company...</example>
     Company,
+    */
     
     /// <summary>
     /// This vehicles owner <see cref="PedData"/> has been set manually.
