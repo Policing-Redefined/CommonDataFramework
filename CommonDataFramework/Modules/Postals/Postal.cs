@@ -8,6 +8,13 @@ namespace CommonDataFramework.Modules.Postals;
 /// </summary>
 public class Postal
 {
+    internal static Postal Default => new()
+    {
+        Number = "-1",
+        X = 0f,
+        Y = 0f
+    };
+    
     /// <summary>
     /// Gets or sets a value indicating the block number.
     /// </summary>

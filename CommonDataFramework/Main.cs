@@ -1,4 +1,5 @@
 ﻿using System;
+using CommonDataFramework.API;
 using CommonDataFramework.Modules.PedDatabase;
 using CommonDataFramework.Modules.Postals;
 using CommonDataFramework.Modules.VehicleDatabase;
@@ -15,6 +16,7 @@ public class EntryPoint : Plugin
     /// <summary/>
     public override void Initialize()
     {
+        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         LSPDFRFunctions.OnOnDutyStateChanged += LSPDFRFunctions_OnOnDutyStateChanged;
     }
 
@@ -40,15 +42,15 @@ public class EntryPoint : Plugin
 
     private static void LoadSystems()
     {
-        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         Settings.Load(DefaultPluginFolder + "/Settings.ini");
         PostalCodeController.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
+        CDFFunctions.SystemsLoaded = true;
     }
     
     private static void UnloadSystems()
     {
-        AppDomain.CurrentDomain.DomainUnload -= DomainUnload;
+        CDFFunctions.SystemsLoaded = false;
         PedDataController.Clear();
         VehicleDataController.Clear();
         InvalidateCache();
