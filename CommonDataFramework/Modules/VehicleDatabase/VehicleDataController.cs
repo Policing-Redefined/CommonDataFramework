@@ -11,8 +11,8 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 /// </summary>
 public static class VehicleDataController
 {
+    private static long _lastPrune = CurrentMillis();
     internal static readonly Dictionary<Vehicle, VehicleData> Database = new();
-    private static GameFiber _process;
 
     /// <summary>
     /// Gets or creates data for the specified vehicle.
@@ -26,6 +26,14 @@ public static class VehicleDataController
     /// <seealso cref="CommonDataFramework.Modules.PedDatabase.PedDataController.GetPedData"/>
     public static VehicleData GetVehicleData(this Vehicle vehicle)
     {
+        // Check if the timer was exceeded
+        long now = CurrentMillis();
+        if (now - _lastPrune > EntryPoint.DatabasePruneInterval)
+        {
+            _lastPrune = now;
+            Prune();
+        }
+        
         if (Database.TryGetValue(vehicle, out VehicleData vehData))
         {
             return vehData;
@@ -35,18 +43,8 @@ public static class VehicleDataController
         return !vehicle.Exists() ? null : new VehicleData(vehicle);
     }
 
-    internal static void Start()
-    {
-        _process.AbortSafe();
-        _process = GameFiber.StartNew(Process);
-        LogDebug("Start: VehicleDataController.");
-    }
-
     internal static void Clear()
     {
-        _process.AbortSafe();
-        _process = null;
-        
         KeyValuePair<Vehicle, VehicleData>[] dbCopy = Database.ToArray();
         Database.Clear(); // Clear the database just in case dismissing throws an exception for whatever reason
         
@@ -62,39 +60,24 @@ public static class VehicleDataController
         LogDebug("Clear: VehicleDataController.");
     }
 
-    private static void Process()
+    private static void Prune()
     {
-        try
+        LogDebug($"VehicleDataController: Checking {Database.Count}.");
+        
+        int removed = 0;
+        foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
         {
-            while (EntryPoint.OnDuty)
+            if (entry.Key.Exists()) continue;
+            Database.Remove(entry.Key);
+            removed++;
+
+            // Dismiss temporary ped, don't reset the field though
+            if (entry.Value.TempPed.Exists())
             {
-                GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
-
-                int removed = 0;
-                foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
-                {
-                    if (entry.Key.Exists()) continue;
-                    Database.Remove(entry.Key);
-                    removed++;
-
-                    // Dismiss temporary ped, don't reset the field though
-                    if (entry.Value.TempPed.Exists())
-                    {
-                        entry.Value.TempPed.Dismiss();
-                    }
-                }
-                
-                LogDebug($"VehicleDataController: Removed {removed}.");
+                entry.Value.TempPed.Dismiss();
             }
         }
-        catch (ThreadAbortException)
-        {
-            // ignored
-        }
-        catch (Exception exception)
-        {
-            LogException(exception, "VehicleDataController.cs: Process");
-            DisplayErrorNotification();
-        }
+                
+        LogDebug($"VehicleDataController: Removed {removed}.");
     }
 }

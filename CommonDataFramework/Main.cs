@@ -42,7 +42,6 @@ public class EntryPoint : Plugin
     {
         AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         Settings.Load(DefaultPluginFolder + "/Settings.ini");
-        VehicleDataController.Start();
         PostalCodeController.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
     }
