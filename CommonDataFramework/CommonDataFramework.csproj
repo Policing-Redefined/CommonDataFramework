@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\CDFEvents.cs" />
     <Compile Include="API\CDFFunctions.cs" />
     <Compile Include="Engine\IO\IniReflector.cs" />
     <Compile Include="Engine\Utility\Extensions\CollectionExtensions.cs" />
