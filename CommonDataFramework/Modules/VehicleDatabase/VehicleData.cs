@@ -128,6 +128,12 @@ public class VehicleData
     /// <seealso cref="VehicleInsurance"/>
     public readonly VehicleInsurance Insurance;
     
+    /// <summary>
+    /// Determines whether the data should be removed from the database during the next prune,
+    /// after the vehicle stopped existing.
+    /// </summary>
+    internal bool RemoveDuringNextPrune;
+    
     internal VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;

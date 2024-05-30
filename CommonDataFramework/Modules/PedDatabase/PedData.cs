@@ -181,6 +181,12 @@ public class PedData
     /// </summary>
     /// <seealso cref="WeaponPermit"/>
     public readonly WeaponPermit WeaponPermit;
+
+    /// <summary>
+    /// Determines whether the data should be removed from the database during the next prune,
+    /// after the ped stopped existing.
+    /// </summary>
+    internal bool RemoveDuringNextPrune;
     
     /// <summary>
     /// Empty constructor for creating an instance without providing a persona or Ped right away.
