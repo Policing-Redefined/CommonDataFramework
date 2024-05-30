@@ -42,7 +42,6 @@ public class EntryPoint : Plugin
     {
         AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         Settings.Load(DefaultPluginFolder + "/Settings.ini");
-        PedDataController.Start();
         VehicleDataController.Start();
         PostalCodeController.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
@@ -51,8 +50,8 @@ public class EntryPoint : Plugin
     private static void UnloadSystems()
     {
         AppDomain.CurrentDomain.DomainUnload -= DomainUnload;
-        PedDataController.Stop();
-        VehicleDataController.Stop();
+        PedDataController.Clear();
+        VehicleDataController.Clear();
         InvalidateCache();
         LogDebug($"Unloaded Systems of V{PluginVersion}.");
     }

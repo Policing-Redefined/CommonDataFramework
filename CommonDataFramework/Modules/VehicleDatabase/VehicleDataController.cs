@@ -42,7 +42,7 @@ public static class VehicleDataController
         LogDebug("Start: VehicleDataController.");
     }
 
-    internal static void Stop()
+    internal static void Clear()
     {
         _process.AbortSafe();
         _process = null;
@@ -59,7 +59,7 @@ public static class VehicleDataController
             }
         }
         
-        LogDebug("Stop: VehicleDataController.");
+        LogDebug("Clear: VehicleDataController.");
     }
 
     private static void Process()

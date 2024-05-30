@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using CommonDataFramework.Engine.Utility.Extensions;
 
 namespace CommonDataFramework.Modules.PedDatabase;
 
@@ -11,8 +8,8 @@ namespace CommonDataFramework.Modules.PedDatabase;
 /// </summary>
 public static class PedDataController
 {
+    private static long _lastPrune = CurrentMillis();
     internal static readonly Dictionary<Ped, PedData> Database = new();
-    private static GameFiber _process;
 
     /// <summary>
     /// Gets or creates data for the specified ped.
@@ -27,6 +24,14 @@ public static class PedDataController
     /// <seealso cref="CommonDataFramework.Modules.VehicleDatabase.VehicleDataController.GetVehicleData"/>
     public static PedData GetPedData(this Ped ped)
     {
+        // Check if the timer was exceeded
+        long now = CurrentMillis();
+        if (now - _lastPrune > EntryPoint.DatabasePruneInterval)
+        {
+            _lastPrune = now;
+            Prune();
+        }
+        
         // No need for a .Exists check here as we might still have it cached even though it's scheduled for deletion.
         if (Database.TryGetValue(ped, out PedData pedData))
         {
@@ -37,48 +42,24 @@ public static class PedDataController
         return (!ped.Exists() || !ped.IsHuman) ? null : new PedData(ped);
     }
 
-    internal static void Start()
+    internal static void Clear()
     {
-        _process.AbortSafe();
-        _process = GameFiber.StartNew(Process);
-        LogDebug("Start: PedDataController.");
-    }
-
-    internal static void Stop()
-    {
-        _process.AbortSafe();
-        _process = null;
         Database.Clear();
-        LogDebug("Stop: PedDataController.");
+        LogDebug("Clear: PedDataController.");
     }
 
-    private static void Process()
+    private static void Prune()
     {
-        try
+        LogDebug($"PedDataController: Checking {Database.Count}.");
+        
+        int removed = 0;
+        foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
         {
-            while (EntryPoint.OnDuty)
-            {
-                GameFiber.Sleep(EntryPoint.DatabasePruneInterval);
-
-                int removed = 0;
-                foreach (KeyValuePair<Ped, PedData> entry in Database.ToArray())
-                {
-                    if (entry.Key.Exists()) continue;
-                    Database.Remove(entry.Key);
-                    removed++;
-                }
+            if (entry.Key.Exists()) continue;
+            Database.Remove(entry.Key);
+            removed++;
+        }
                 
-                LogDebug($"PedDataController: Removed {removed}.");
-            }
-        }
-        catch (ThreadAbortException)
-        {
-            // ignored
-        }
-        catch (Exception exception)
-        {
-            LogException(exception, "PedDataController.cs: Process");
-            DisplayErrorNotification();
-        }
+        LogDebug($"PedDataController: Removed {removed}.");
     }
 }
