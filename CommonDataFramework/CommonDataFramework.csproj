@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\CDFEvents.cs" />
+    <Compile Include="API\CDFFunctions.cs" />
     <Compile Include="Engine\IO\IniReflector.cs" />
     <Compile Include="Engine\Utility\Extensions\CollectionExtensions.cs" />
     <Compile Include="Engine\Utility\Extensions\FiberExtensions.cs" />
@@ -73,7 +75,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

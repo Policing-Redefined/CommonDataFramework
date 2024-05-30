@@ -1,4 +1,5 @@
 ﻿using System;
+using CommonDataFramework.API;
 using CommonDataFramework.Modules.PedDatabase;
 using CommonDataFramework.Modules.Postals;
 using CommonDataFramework.Modules.VehicleDatabase;
@@ -9,12 +10,25 @@ namespace CommonDataFramework;
 /// <summary/>
 public class EntryPoint : Plugin
 {
+    private static bool _pluginReady;
+    
     internal const int DatabasePruneInterval = 15 * 60 * 1000; // 15 Minutes
     internal static bool OnDuty { get; private set; }
+
+    internal static bool PluginReady
+    {
+        get => _pluginReady;
+        private set
+        {
+            _pluginReady = value;
+            CDFEvents.InvokeOnPluginStateChanged(value);
+        }
+    }
     
     /// <summary/>
     public override void Initialize()
     {
+        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         LSPDFRFunctions.OnOnDutyStateChanged += LSPDFRFunctions_OnOnDutyStateChanged;
     }
 
@@ -40,15 +54,15 @@ public class EntryPoint : Plugin
 
     private static void LoadSystems()
     {
-        AppDomain.CurrentDomain.DomainUnload += DomainUnload;
         Settings.Load(DefaultPluginFolder + "/Settings.ini");
         PostalCodeController.Load();
         LogDebug($"Loaded Systems of V{PluginVersion}.");
+        PluginReady = true;
     }
     
     private static void UnloadSystems()
     {
-        AppDomain.CurrentDomain.DomainUnload -= DomainUnload;
+        PluginReady = false;
         PedDataController.Clear();
         VehicleDataController.Clear();
         InvalidateCache();

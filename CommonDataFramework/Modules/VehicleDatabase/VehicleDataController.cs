@@ -68,6 +68,14 @@ public static class VehicleDataController
         foreach (KeyValuePair<Vehicle, VehicleData> entry in Database.ToArray())
         {
             if (entry.Key.Exists()) continue;
+            
+            // Let the data live until the next prune.
+            if (!entry.Value.RemoveDuringNextPrune)
+            {
+                entry.Value.RemoveDuringNextPrune = true;
+                continue;
+            }
+            
             Database.Remove(entry.Key);
             removed++;
 
