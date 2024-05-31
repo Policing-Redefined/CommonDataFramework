@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CommonDataFramework.API;
 
 namespace CommonDataFramework.Modules.PedDatabase;
 
@@ -66,6 +67,7 @@ public static class PedDataController
             
             Database.Remove(entry.Key);
             removed++;
+            CDFEvents.InvokeOnPedDataRemoved(entry.Key, entry.Value);
         }
                 
         LogDebug($"PedDataController: Removed {removed}.");

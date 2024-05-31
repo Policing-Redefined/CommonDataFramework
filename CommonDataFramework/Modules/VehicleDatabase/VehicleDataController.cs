@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CommonDataFramework.API;
 using CommonDataFramework.Engine.Utility.Extensions;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -78,6 +79,7 @@ public static class VehicleDataController
             
             Database.Remove(entry.Key);
             removed++;
+            CDFEvents.InvokeOnVehicleDataRemoved(entry.Key, entry.Value);
 
             // Dismiss temporary ped, don't reset the field though
             if (entry.Value.TempPed.Exists())
