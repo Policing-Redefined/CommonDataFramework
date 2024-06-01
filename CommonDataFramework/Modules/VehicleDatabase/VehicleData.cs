@@ -187,8 +187,8 @@ public class VehicleData
             
             if (IsStolen || GetRandomChance(CDFSettings.VehicleStolenChance)) // This vehicle owner must be a random ped if the vehicle is marked as stolen
             {
-                OwnerType = EVehicleOwnerType.RandomPed; // Setting it first will prevent 'SetVehicleOwner' being called by the setter of 'IsStolen'
                 UseTemporaryPed();
+                OwnerType = EVehicleOwnerType.RandomPed;
                 IsStolen = true;
                 return true;
             }
