@@ -328,7 +328,7 @@ public enum EVehicleOwnerType
     /// <summary>
     /// This vehicle is owned by the government.
     /// </summary>
-    /// <remarks><see cref="VehicleData.Owner"/> does not have a valid ped (<see cref="PedData.HasRealPed"/> is <see cref="System.Boolean.False"/>).</remarks>
+    /// <remarks><see cref="VehicleData.Owner"/> does not have a valid ped (<see cref="PedData.HasRealPed"/> is false).</remarks>
     /// <example>Generally emergency vehicles</example>
     Government,
     

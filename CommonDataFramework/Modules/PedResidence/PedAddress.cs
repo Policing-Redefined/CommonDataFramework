@@ -65,4 +65,13 @@ public class PedAddress
         StreetName = World.GetStreetName(position);
         Position = position;
     }
+
+    /// <summary>
+    /// Returns a string representation of the address.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+        return $"{AddressPostal.Number} {StreetName}";
+    }
 }
