@@ -39,6 +39,7 @@ public class Permit
     
     /// <summary>
     /// Gets or sets status of the permit.
+    /// This also affects <see cref="ExpirationDate"/>.
     /// </summary>
     /// <seealso cref="EDocumentStatus"/>
     public EDocumentStatus Status
@@ -52,11 +53,11 @@ public class Permit
     }
     
     /// <summary>
-    /// The expiration date of the permit.
-    /// Can only be changed by changing <see cref="Status"/>.
-    /// Null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
+    /// Gets or sets expiration date of the permit.
+    /// Can be null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
     /// </summary>
-    public DateTime? ExpirationDate { get; private set; }
+    /// <seealso cref="Status"/>
+    public DateTime? ExpirationDate { get; set; }
 
     internal Permit(EDocumentStatus? status)
     {

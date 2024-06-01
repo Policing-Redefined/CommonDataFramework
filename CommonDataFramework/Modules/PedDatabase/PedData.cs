@@ -25,7 +25,7 @@ public class PedData
 
     private DateTime? _dlExpiration;
     /// <summary>
-    /// The expiration date of the ped's drivers license (if the ped owns one).
+    /// Gets or sets expiration date of the ped's drivers license (if the ped owns one).
     /// </summary>
     public DateTime? DriversLicenseExpiration
     {
@@ -35,6 +35,7 @@ public class PedData
                 HandlePersonaUpdate();
             return _dlExpiration;
         }
+        set => _dlExpiration = value;
     }
 
     /// <summary>

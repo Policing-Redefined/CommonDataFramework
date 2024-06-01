@@ -72,11 +72,11 @@ public abstract class VehicleDocument
     }
 
     /// <summary>
-    /// Gets the expiration date of the registration.
+    /// Gets or sets the expiration date of the vehicle document.
     /// Can be null if <see cref="Status"/> is <see cref="EDocumentStatus.None"/>.
     /// </summary>
     /// <seealso cref="Status"/>
-    public DateTime? ExpirationDate { get; private protected set; }
+    public DateTime? ExpirationDate { get; set; }
 
     /// <summary>
     /// Updates the probabilities.
