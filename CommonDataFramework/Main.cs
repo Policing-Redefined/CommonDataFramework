@@ -10,21 +10,10 @@ namespace CommonDataFramework;
 /// <summary/>
 public class EntryPoint : Plugin
 {
-    private static bool _pluginReady;
-    
     internal const int DatabasePruneInterval = 15 * 60 * 1000; // 15 Minutes
     internal static bool OnDuty { get; private set; }
+    internal static bool PluginReady { get; private set; }
 
-    internal static bool PluginReady
-    {
-        get => _pluginReady;
-        private set
-        {
-            _pluginReady = value;
-            CDFEvents.InvokeOnPluginStateChanged(value);
-        }
-    }
-    
     /// <summary/>
     public override void Initialize()
     {
