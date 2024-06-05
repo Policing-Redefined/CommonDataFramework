@@ -46,6 +46,15 @@ public class VehicleIdentificationNumber
         Status = status;
         Number = GetRandomString(17);
     }
+    
+    /// <summary>
+    /// Returns a string representation of VIN.
+    /// </summary>
+    /// <returns>The Vehicle Identification <see cref="Number"/>.</returns>
+    public override string ToString()
+    {
+        return Number;
+    }
 }
 
 /// <summary>
