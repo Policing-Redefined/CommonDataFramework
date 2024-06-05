@@ -1,5 +1,5 @@
 # Common Data Framework
-Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an extended vehicle and ped record API for developers. It's main goal is to replace missing features of the LSPDFR API while providing synchronization of that data across all plugins who use it. It is used by PR and is already planned to be implement in current and future plugins.
+Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an extended vehicle and ped record API for developers. It's main goal is to replace missing features of the LSPDFR API while providing synchronization of that data across all plugins who use it. It is used by the upcoming 'Policing Redefined' plugin and is already planned to be implement in current and future plugins.
 <br><br/>
 
 ## How to install
@@ -13,6 +13,7 @@ Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an exten
 *...all steps above*
 - Reference `CommonDataFramework.dll` in your assembly
 - [Recommended] If you want to make use of intellisense, the `CommonDataFramework.xml` must be in the same directory of your referenced `.dll`
+- Jump to the [example code](https://github.com/Policing-Redefined/CommonDataFramework/edit/main/README.md#example-for-developers)
 - *You can also have your .dll etc. somewhere else but if you are running your code, then CDF **must** be present in the LSPDFR directory.*
 <br><br/>
 
@@ -35,9 +36,13 @@ Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an exten
 - Registration
 - Insurance
 - Vehicle owner (of type `PedData`) aswell as different owner "types"
+
+### Example images by PR
+![Example of PR using PedData](https://i.ibb.co/NSLw5F1/Example-Ped-Data.png)
+![Example of PR using VehicleData](https://i.ibb.co/1f5LttR/Example-Vehicle-Data.png)
 <br><br/>
 
-Here is an example of how CDF could be used in your code:
+## Example for developers
 ```cs
 using CommonDataFramework.API;
 using CommonDataFramework.Modules;
