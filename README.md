@@ -13,7 +13,7 @@ Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an exten
 *...all steps above*
 - Reference `CommonDataFramework.dll` in your assembly
 - [Recommended] If you want to make use of intellisense, the `CommonDataFramework.xml` must be in the same directory of your referenced `.dll`
-- Jump to the [example code](https://github.com/Policing-Redefined/CommonDataFramework/edit/main/README.md#example-for-developers)
+- Jump to the [example code](https://github.com/Policing-Redefined/CommonDataFramework/tree/main?tab=readme-ov-file#example-for-developers)
 - *You can also have your .dll etc. somewhere else but if you are running your code, then CDF **must** be present in the LSPDFR directory.*
 <br><br/>
 
