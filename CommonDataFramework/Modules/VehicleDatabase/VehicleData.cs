@@ -284,16 +284,32 @@ public class VehicleData
     private void UseTemporaryPed()
     {
         // Grab random ped from world
-        TempPed = GetRandomPedFromWorld();
+        TempPed = GetRandomPedFromWorld(out bool fallback);
         TempPed.IsPersistent = true;
+        
         // Set owner
         Owner = TempPed.GetPedData();
+        
+        // Make ped move instead of standing around like a tree
+        if (fallback) TempPed.Tasks.Wander();
     }
 
-    private static Ped GetRandomPedFromWorld()
-        => World.GetAllPeds()
-                .Where(p => p.Exists() && p.IsAlive && p.IsHuman && !p.IsPersistent && Vector3.DistanceSquared(p.Position, MainPlayer) > (150f * 150f))
-                .Random();
+    private static Ped GetRandomPedFromWorld(out bool fallback)
+    {
+        fallback = false;
+        
+        // Try to get an existing ped
+        Ped[] peds = World.GetAllPeds()
+                          .Where(p => p.Exists() && p.IsAlive && p.IsHuman && !p.IsPersistent && Vector3.DistanceSquared(p.Position, MainPlayer) > (150f * 150f))
+                          .ToArray();
+        if (peds.Length != 0) return peds.Random();
+        
+        // No nearby ped at all, fallback to spawning one
+        LogDebug("GetRandomPedFromWorld: Falling back to spawning a temporary ped.");
+        fallback = true;
+        Vector3 fallbackPos = World.GetNextPositionOnStreet(MainPlayer.Position.Around2D(Rnd.Next(150, 280)));
+        return new Ped(fallbackPos);
+    }
 }
 
 /// <summary>
