@@ -11,7 +11,7 @@ internal class Settings
     #region DEFAULT
     
     // Default: Vehicle documents
-    internal const int DefaultVehicleStolenChance = 20;
+    internal const int DefaultVehicleStolenChance = 8;
     internal const int DefaultVehicleRegValidChance = 65;
     internal const int DefaultVehicleRegExpiredChance = 20;
     internal const int DefaultVehicleRegRevokedChance = 5;

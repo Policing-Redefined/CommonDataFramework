@@ -12,7 +12,7 @@ public class PedAddress
     /// <summary>
     /// Gets the postal of the address.
     /// </summary>
-    /// <remarks>Can theoretically happen to be null, but it should not unless someone has some weird postals.</remarks>
+    /// <remarks>Can theoretically happen to be <see cref="Postal.Default"/>, but it should not unless someone has some weird postals.</remarks>
     /// <seealso cref="Postal"/>
     public readonly Postal AddressPostal;
 
@@ -61,7 +61,7 @@ public class PedAddress
     /// <param name="position">Position in world-coordinates</param>
     public PedAddress(Vector3 position)
     {
-        AddressPostal = PostalCodeController.GetNearestPostalCode(position)?.Code;
+        AddressPostal = PostalCodeController.GetNearestPostalCode(position)?.Code ?? Postal.Default;
         StreetName = World.GetStreetName(position);
         Position = position;
     }

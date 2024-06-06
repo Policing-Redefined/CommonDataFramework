@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using CommonDataFramework.API;
-using CommonDataFramework.Engine.Utility.Extensions;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
 
