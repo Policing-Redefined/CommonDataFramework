@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
 using CommonDataFramework.Modules.PedDatabase;
-using CommonDataFramework.Modules.PedResidence;
 using LSPD_First_Response.Engine.Scripting.Entities;
 
 namespace CommonDataFramework.Modules.VehicleDatabase;
@@ -283,20 +283,17 @@ public class VehicleData
 
     private void UseTemporaryPed()
     {
-        // Spawn ped at address position
-        PedAddress address = new();
-        TempPed = new Ped(address.Position)
-        {
-            IsPersistent = true
-        };
-        
+        // Grab random ped from world
+        TempPed = GetRandomPedFromWorld();
+        TempPed.IsPersistent = true;
         // Set owner
-        Owner = new PedData(TempPed, address);
-        
-        // Teleport them above the ground
-        TempPed.SetPositionWithSnap(address.Position);
-        TempPed.Tasks.Wander();
+        Owner = TempPed.GetPedData();
     }
+
+    private static Ped GetRandomPedFromWorld()
+        => World.GetAllPeds()
+                .Where(p => p.Exists() && p.IsAlive && p.IsHuman && !p.IsPersistent && Vector3.DistanceSquared(p.Position, MainPlayer) > (150f * 150f))
+                .Random();
 }
 
 /// <summary>
