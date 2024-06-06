@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
 using static CommonDataFramework.Engine.Utility.Helpers.DateTimeHelper;
 
@@ -125,8 +124,7 @@ public class VehicleRegistration : VehicleDocument
 
     internal VehicleRegistration(EDocumentStatus? status)
     {
-        status ??= GetRandomStatus();
-        Status = (EDocumentStatus) status;
+        Status = status ?? GetRandomStatus();
     }
     
     internal static void ResetWeights()
@@ -137,7 +135,7 @@ public class VehicleRegistration : VehicleDocument
     private EDocumentStatus GetRandomStatus()
     {
         if (_weightedStatus == null) UpdateWeights();
-        return _weightedStatus.Random();
+        return _weightedStatus!.Next();
     }
 
     /// <summary>
@@ -170,8 +168,7 @@ public class VehicleInsurance : VehicleDocument
     
     internal VehicleInsurance(EDocumentStatus? status)
     {
-        status ??= GetRandomStatus();
-        Status = (EDocumentStatus) status;
+        Status = status ?? GetRandomStatus();
     }
     
     internal static void ResetWeights()
@@ -182,7 +179,7 @@ public class VehicleInsurance : VehicleDocument
     private EDocumentStatus GetRandomStatus()
     {
         if (_weightedStatus == null) UpdateWeights();
-        return _weightedStatus.Random();
+        return _weightedStatus!.Next();
     }
 
     /// <summary>
