@@ -43,18 +43,7 @@ public static class VehicleDataController
 
     internal static void Clear()
     {
-        KeyValuePair<Vehicle, VehicleData>[] dbCopy = Database.ToArray();
         Database.Clear(); // Clear the database just in case dismissing throws an exception for whatever reason
-        
-        // Dismiss temporary peds
-        foreach (KeyValuePair<Vehicle, VehicleData> entry in dbCopy)
-        {
-            if (entry.Value.TempPed.Exists())
-            {
-                entry.Value.TempPed.Dismiss();
-            }
-        }
-        
         LogDebug("Clear: VehicleDataController.");
     }
 
@@ -77,12 +66,6 @@ public static class VehicleDataController
             Database.Remove(entry.Key);
             removed++;
             CDFEvents.InvokeOnVehicleDataRemoved(entry.Key, entry.Value);
-
-            // Dismiss temporary ped, don't reset the field though
-            if (entry.Value.TempPed.Exists())
-            {
-                entry.Value.TempPed.Dismiss();
-            }
         }
                 
         LogDebug($"VehicleDataController: Removed {removed}.");
