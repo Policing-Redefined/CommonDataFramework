@@ -71,10 +71,6 @@ public class VehicleData
     /// </summary>
     /// <seealso cref="PedData"/>
     public PedData Owner { get; private set; }
-
-    // When the owner type is set to 'RandomPed' or 'FamilyMember', a random temporary ped is created, that is dismissed
-    // when the vehicle stops existing or the owner type is changed.
-    internal Ped TempPed { get; private set; }
     
     private EVehicleOwnerType _ownerType;
     /// <summary>
@@ -97,11 +93,6 @@ public class VehicleData
         private set
         {
             _ownerType = value;
-            if (value != EVehicleOwnerType.RandomPed && value != EVehicleOwnerType.FamilyMember && TempPed.Exists())
-            {
-                TempPed.Dismiss();
-                TempPed = null; // Reset the field as the ped is no longer needed
-            }
 
             if (Holder.Exists()) // Set the owner within LSPDFR's API
             {
@@ -187,7 +178,7 @@ public class VehicleData
             
             if (IsStolen || GetRandomChance(CDFSettings.VehicleStolenChance)) // This vehicle owner must be a random ped if the vehicle is marked as stolen
             {
-                UseTemporaryPed();
+                UseFakePedData();
                 OwnerType = EVehicleOwnerType.RandomPed;
                 IsStolen = true;
                 return true;
@@ -242,8 +233,8 @@ public class VehicleData
                 Ped passengerToUse = (Holder.Passengers.Length != 0 && VehicleOwnerTypes.Next() == EVehicleOwnerType.Passenger) ? Holder.Passengers.Random() : null;
                 PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
                 
-                // Generate random ped
-                UseTemporaryPed();
+                // Generate random ped data
+                UseFakePedData();
                 
                 driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
                 if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
@@ -255,7 +246,7 @@ public class VehicleData
             }
             case EVehicleOwnerType.RandomPed:
             {
-                UseTemporaryPed();
+                UseFakePedData();
                 break;
             }
             default:
@@ -281,34 +272,9 @@ public class VehicleData
         };
     }
 
-    private void UseTemporaryPed()
+    private void UseFakePedData()
     {
-        // Grab random ped from world
-        TempPed = GetRandomPedFromWorld(out bool fallback);
-        TempPed.IsPersistent = true;
-        
-        // Set owner
-        Owner = TempPed.GetPedData();
-        
-        // Make ped move instead of standing around like a tree
-        if (fallback) TempPed.Tasks.Wander();
-    }
-
-    private static Ped GetRandomPedFromWorld(out bool fallback)
-    {
-        fallback = false;
-        
-        // Try to get an existing ped
-        Ped[] peds = World.GetAllPeds()
-                          .Where(p => p.Exists() && p.IsAlive && p.IsHuman && !p.IsPersistent && Vector3.DistanceSquared(p.Position, MainPlayer) > (150f * 150f))
-                          .ToArray();
-        if (peds.Length != 0) return peds.Random();
-        
-        // No nearby ped at all, fallback to spawning one
-        LogDebug("GetRandomPedFromWorld: Falling back to spawning a temporary ped.");
-        fallback = true;
-        Vector3 fallbackPos = World.GetNextPositionOnStreet(MainPlayer.Position.Around2D(Rnd.Next(150, 280)));
-        return new Ped(fallbackPos);
+        Owner = new PedData(PersonaHelper.GenerateNewPersona());
     }
 }
 
