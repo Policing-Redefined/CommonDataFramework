@@ -71,13 +71,14 @@ public class EntryPoint : Plugin
     [ConsoleCommand]
     internal static void Command_LogClosestPed(bool changeHuntingPermit)
     {
-        Ped ped = Game.LocalPlayer.Character.GetNearbyPeds(1)[0];
-        if (ped == null)
+        Ped[] peds = Game.LocalPlayer.Character.GetNearbyPeds(1);
+        if (peds.Length == 0)
         {
             Game.LogTrivial("Could not find any nearby ped.");
             return;
         }
 
+        Ped ped = peds[0];
         PedData pedData = ped.GetPedData();
         Game.LogTrivial($"Ped name: {pedData.FullName}.");
         
@@ -93,13 +94,14 @@ public class EntryPoint : Plugin
     [ConsoleCommand]
     internal static void Command_LogClosestVehicle(bool changeRegistration)
     {
-        Vehicle vehicle = Game.LocalPlayer.Character.GetNearbyVehicles(1)[0];
-        if (vehicle == null)
+        Vehicle[] vehicles = Game.LocalPlayer.Character.GetNearbyVehicles(1);
+        if (vehicles.Length == 0)
         {
             Game.LogTrivial("Could not find any nearby vehicle.");
             return;
         }
 
+        Vehicle vehicle = vehicles[0];
         VehicleData vehicleData = vehicle.GetVehicleData();
         Game.LogTrivial($"Vehicle VIN: {vehicleData.Vin}.");
         Game.LogTrivial($"Vehicle Owner: {vehicleData.Owner.FullName} (Type: {vehicleData.OwnerType})."); // <VehicleData>.Owner -> PedData
