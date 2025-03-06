@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using CommonDataFramework.Engine.Utility.Extensions;
@@ -60,6 +61,36 @@ public class VehicleData
                 SetVehicleOwner(null); // Change owner because stolen state changed
             }
         }
+    }
+    
+    private readonly List<VehicleBolo> _bolos = [];
+
+    /// <summary>
+    /// Returns all active bolos for this vehicle.
+    /// </summary>
+    /// <returns>Array of type <see cref="VehicleBolo"/></returns>
+    public VehicleBolo[] GetAllBolos()
+    {
+        return _bolos.ToArray();
+    }
+    
+    /// <summary>
+    /// Adds a bolo to this vehicle.
+    /// </summary>
+    /// <param name="bolo">Bolo to add</param>
+    public void AddBolo(VehicleBolo bolo)
+    {
+        _bolos.Add(bolo);
+    }
+    
+    /// <summary>
+    /// Removes a bolo from this vehicle.
+    /// </summary>
+    /// <param name="bolo">Bolo to remove</param>
+    public void RemoveBolo(VehicleBolo bolo)
+    {
+        if (_bolos.Count == 0) return;
+        _bolos.Remove(bolo);
     }
     
     /// <summary>
@@ -276,6 +307,50 @@ public class VehicleData
     {
         Owner = new PedData(PersonaHelper.GenerateNewPersona());
     }
+}
+
+public class VehicleBolo
+{
+    private bool _isActive = true;
+    
+    /// <summary>
+    /// Whether the bolo is active
+    /// </summary>
+    public bool IsActive => _isActive && DateTime.Now < Expires && DateTime.Now > Issued;
+    
+    /// <summary>
+    /// Reason for the bolo
+    /// </summary>
+    public readonly string Reason;
+
+    /// <summary>
+    /// Date the bolo was issued
+    /// </summary>
+    public readonly DateTime Issued;
+
+    /// <summary>
+    /// Date the bolo expires
+    /// </summary>
+    public readonly DateTime Expires;
+
+    /// <summary>
+    /// Agency the bolo was issued by
+    /// </summary>
+    public readonly string IssuedBy;
+    
+    public VehicleBolo(string reason, DateTime issued, DateTime expires, string issuedBy)
+    {
+        Reason = reason;
+        Issued = issued;
+        Expires = expires;
+        IssuedBy = issuedBy;
+    }
+    
+    /// <summary>
+    /// Set's the active state of the bolo
+    /// </summary>
+    /// <param name="active">True/False</param>
+    public void SetIsActive(bool active) => _isActive = active;
 }
 
 /// <summary>
