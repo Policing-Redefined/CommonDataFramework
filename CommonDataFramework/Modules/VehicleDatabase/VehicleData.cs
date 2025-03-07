@@ -64,6 +64,12 @@ public class VehicleData
     }
     
     private readonly HashSet<VehicleBOLO> _bolos = [];
+    
+    /// <summary>
+    /// Whether the vehicle has any <see cref="VehicleBOLO"/>s.
+    /// </summary>
+    /// <seealso cref="GetAllBOLOs"/>
+    public bool HasAnyBOLOs => _bolos.Count > 0;
 
     /// <summary>
     /// Returns all active bolos for this vehicle.
