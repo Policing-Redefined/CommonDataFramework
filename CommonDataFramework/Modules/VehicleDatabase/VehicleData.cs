@@ -63,13 +63,13 @@ public class VehicleData
         }
     }
     
-    private readonly List<VehicleBolo> _bolos = [];
+    private readonly HashSet<VehicleBOLO> _bolos = [];
 
     /// <summary>
     /// Returns all active bolos for this vehicle.
     /// </summary>
-    /// <returns>Array of type <see cref="VehicleBolo"/></returns>
-    public VehicleBolo[] GetAllBolos()
+    /// <returns>Array of type <see cref="VehicleBOLO"/></returns>
+    public VehicleBOLO[] GetAllBOLOs()
     {
         return _bolos.ToArray();
     }
@@ -78,8 +78,9 @@ public class VehicleData
     /// Adds a bolo to this vehicle.
     /// </summary>
     /// <param name="bolo">Bolo to add</param>
-    public void AddBolo(VehicleBolo bolo)
+    public void AddBOLO(VehicleBOLO bolo)
     {
+        if (bolo == null) return;
         _bolos.Add(bolo);
     }
     
@@ -87,9 +88,9 @@ public class VehicleData
     /// Removes a bolo from this vehicle.
     /// </summary>
     /// <param name="bolo">Bolo to remove</param>
-    public void RemoveBolo(VehicleBolo bolo)
+    public void RemoveBOLO(VehicleBOLO bolo)
     {
-        if (_bolos.Count == 0) return;
+        if (bolo == null || _bolos.Count == 0) return;
         _bolos.Remove(bolo);
     }
     
@@ -309,36 +310,46 @@ public class VehicleData
     }
 }
 
-public class VehicleBolo
+/// <summary>
+/// A BOLO entry for a vehicle.
+/// </summary>
+public class VehicleBOLO
 {
     private bool _isActive = true;
     
     /// <summary>
-    /// Whether the bolo is active
+    /// Whether this BOLO is active.
     /// </summary>
     public bool IsActive => _isActive && DateTime.Now < Expires && DateTime.Now > Issued;
     
     /// <summary>
-    /// Reason for the bolo
+    /// Reason for the BOLO.
     /// </summary>
     public readonly string Reason;
 
     /// <summary>
-    /// Date the bolo was issued
+    /// Date the BOLO was issued.
     /// </summary>
     public readonly DateTime Issued;
 
     /// <summary>
-    /// Date the bolo expires
+    /// Date the BOLO expires.
     /// </summary>
     public readonly DateTime Expires;
 
     /// <summary>
-    /// Agency the bolo was issued by
+    /// Agency the BOLO was issued by.
     /// </summary>
     public readonly string IssuedBy;
     
-    public VehicleBolo(string reason, DateTime issued, DateTime expires, string issuedBy)
+    /// <summary>
+    /// Creates a BOLO for a vehicle.
+    /// </summary>
+    /// <param name="reason">Reason for the BOLO.</param>
+    /// <param name="issued">Date the BOLO starts.</param>
+    /// <param name="expires">Date the BOLO expires.</param>
+    /// <param name="issuedBy">Agency that issues this BOLO.</param>
+    public VehicleBOLO(string reason, DateTime issued, DateTime expires, string issuedBy)
     {
         Reason = reason;
         Issued = issued;
@@ -347,7 +358,7 @@ public class VehicleBolo
     }
     
     /// <summary>
-    /// Set's the active state of the bolo
+    /// Sets the active state of the BOLO.
     /// </summary>
     /// <param name="active">True/False</param>
     public void SetIsActive(bool active) => _isActive = active;
