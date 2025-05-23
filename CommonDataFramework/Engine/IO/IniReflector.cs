@@ -290,6 +290,7 @@ internal class IniReflectorValue : Attribute
     internal readonly string SectionName;
     internal readonly string Name;
     internal readonly object DefaultValue;
+    internal readonly string Description;
     
     internal IniReflectorValue(string sectionName = null, string name = null, object defaultValue = null, string description = null)
     {
