@@ -5,15 +5,26 @@ using System.Reflection;
 
 namespace CommonDataFramework.Engine.IO;
 
+internal class IniReflector<T> : IniReflector
+{
+    internal IniReflector(string path) : base(path, typeof(T)) { }
+}
+
 internal class IniReflector
 {
+    #region Const
+    
+    private const BindingFlags MemberFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public;
+    
+    #endregion
+    
     private readonly Type _iniModel;
     private readonly string _path;
     
     private readonly List<IniReflectorSection> _sections = new();
+    private readonly List<Tuple<PropertyInfo, IniReflectorValue>> _validProperties = new();
+    private readonly List<Tuple<FieldInfo, IniReflectorValue>> _validFields = new();
     private readonly Dictionary<string, object> _defaultValues = new();
-    private readonly Dictionary<PropertyInfo, IniReflectorValue> _validProperties = new();
-    private readonly Dictionary<FieldInfo, IniReflectorValue> _validFields = new();
     private InitializationFile _iniFile;
     private bool _hasReadBefore;
 
@@ -33,6 +44,150 @@ internal class IniReflector
             return;
         }
         
+        // Parse object
+        ReflectObject(obj, withLogging);
+        
+        // Read properties
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Reading {_validProperties.Count} properties.");
+        foreach ((PropertyInfo property, IniReflectorValue reflectorValue) in _validProperties)
+        {
+            // Get default value and ini key/section
+            object defaultValue = GetDefaultValueForMember(property.Name, reflectorValue, property.PropertyType);
+            GetIniValues(reflectorValue, property.Name, out string keyName, out string sectionName);
+            
+            // Deserialize to property
+            property.SetValue(obj, ReadValue(property.PropertyType, sectionName, keyName, defaultValue, reflectorValue.Description));
+            if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {property.Name} = {property.GetValue(obj)}");
+        }
+        
+        // Read fields
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Reading {_validFields.Count} fields.");
+        foreach ((FieldInfo field, IniReflectorValue reflectorValue) in _validFields)
+        {
+            // Get default value and ini key/section
+            object defaultValue = GetDefaultValueForMember(field.Name, reflectorValue, field.FieldType);
+            GetIniValues(reflectorValue, field.Name, out string keyName, out string sectionName);
+            
+            // Deserialize to field
+            field.SetValue(obj, ReadValue(field.FieldType, sectionName, keyName, defaultValue, reflectorValue.Description));
+            if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {field.Name} = {field.GetValue(obj)}");
+        }
+        
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Finished.");
+    }
+
+    internal void Write(object obj, bool withLogging)
+    {
+        Type objType = obj.GetType();
+        if (objType != _iniModel)
+        {
+            LogWarn($"Object of type '{objType.Name}' does NOT match ini model '{_iniModel.Name}'.");
+            return;
+        }
+        
+        // Parse object
+        ReflectObject(obj, withLogging);
+
+        // Write properties
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Writing {_validProperties.Count} properties.");
+        foreach ((PropertyInfo property, IniReflectorValue reflectorValue) in _validProperties)
+        {
+            // Get new value and ini key/section
+            object newValue = property.GetValue(obj) ?? GetDefaultValueForMember(property.Name, reflectorValue, property.PropertyType);
+            GetIniValues(reflectorValue, property.Name, out string keyName, out string sectionName);
+            
+            // Serialize property
+            WriteValue(sectionName, keyName, newValue, reflectorValue.Description);
+            if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {property.Name} = {newValue}");
+        }
+        
+        // Write fields
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Writing {_validFields.Count} fields.");
+        foreach ((FieldInfo field, IniReflectorValue reflectorValue) in _validFields)
+        {
+            // Get new value and ini key/section
+            object newValue = field.GetValue(obj) ?? GetDefaultValueForMember(field.Name, reflectorValue, field.FieldType);
+            GetIniValues(reflectorValue, field.Name, out string keyName, out string sectionName);
+            
+            // Serialize field
+            WriteValue(sectionName, keyName, newValue, reflectorValue.Description);
+            if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {field.Name} = {newValue}");
+        }
+        
+        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Finished.");
+    }
+    
+    internal bool WriteSingle(string memberName, object newValue)
+    {
+        if (!_hasReadBefore) return false; // We do not have any information about the object yet
+
+        IniReflectorValue reflectorValue;
+        // Try to find property
+        Tuple<PropertyInfo, IniReflectorValue> pMember = _validProperties.Find(p => p.Item1.Name == memberName);
+        if (pMember != null)
+        {
+            if (pMember.Item1.PropertyType != newValue.GetType()) return false; // Verify property type
+            reflectorValue = pMember.Item2;
+        }
+        else
+        {
+            // Try to find field
+            Tuple<FieldInfo, IniReflectorValue> fMember = _validFields.Find(f => f.Item1.Name == memberName);
+            if (fMember == null || fMember.Item1.FieldType != newValue.GetType()) return false; // We couldn't find the member or the field type mismatched
+            reflectorValue = fMember.Item2;
+        }
+
+        GetIniValues(reflectorValue, memberName, out string keyName, out string sectionName);
+        WriteValue(sectionName, keyName, newValue, reflectorValue.Description);
+        return true;
+    }
+
+    private object GetDefaultValueForMember(string memberName, IniReflectorValue reflectorValue, Type memberType)
+    {
+        if (reflectorValue.DefaultValue != null) return reflectorValue.DefaultValue;
+        return _defaultValues.TryGetValue(memberName, out object defaultValue) ? defaultValue : GetDefaultValueOfType(memberType);
+    }
+
+    private void GetIniValues(IniReflectorValue reflectorValue, string memberName, out string keyName, out string sectionName)
+    {
+        string initKeyName = reflectorValue.Name ?? memberName;
+        sectionName = reflectorValue.SectionName;
+        if (string.IsNullOrEmpty(sectionName))
+        {
+            sectionName = _sections.Find(s => initKeyName.StartsWith(s.Name)).Name;
+        }
+
+        keyName = initKeyName;
+    }
+    
+    private object ReadValue(Type valueType, string sectionName, string keyName, object defaultValue, string description)
+    {
+        // Write default value to .ini
+        if (!_iniFile.DoesKeyExist(sectionName, keyName))
+        {
+            WriteValue(sectionName, keyName, defaultValue, description);
+            return defaultValue;
+        }
+        
+        // Parse value (enums need extra treatment)
+        return !valueType.IsEnum
+            ? _iniFile.Read(valueType, sectionName, keyName, defaultValue)
+            // RPH has issues reading enums for some reason so we have to read it as a string
+            : Enum.Parse(valueType, _iniFile.ReadString(sectionName, keyName, defaultValue.ToString()).Trim());
+    }
+
+    private void WriteValue(string sectionName, string keyName, object value, string description)
+    {
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            keyName = $"//{description}\n{keyName}";
+        }
+        
+        _iniFile.Write(sectionName, keyName, value);
+    }
+
+    private void ReflectObject(object obj, bool withLogging)
+    {
         if (_hasReadBefore)
         {
             _sections.Clear();
@@ -47,188 +202,86 @@ internal class IniReflector
             _iniFile.Create();
             _hasReadBefore = true;
         }
-
-        if (withLogging) 
-            LogDebug($"IniReflector: Reading '{_iniModel.Name}'.");
+        
+        if (withLogging) LogDebug($"IniReflector: Reflecting '{_iniModel.Name}'.");
         _sections.AddRange(_iniModel.GetCustomAttributes<IniReflectorSection>());
         
-        PropertyInfo[] properties = _iniModel.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+        PropertyInfo[] properties = _iniModel.GetProperties(MemberFlags);
         foreach (PropertyInfo property in properties)
         {
-            if (property.GetCustomAttribute<IniReflectorIgnore>() != null) continue;
-            
             // Members starting with 'Default' are considered to be storing a default value of a different member
             if (property.Name.StartsWith("Default"))
             {
-                if (!property.CanRead) continue; // We must be able to read the default value
-
-                Type propertyType = property.PropertyType;
-                object defaultValue = GetDefaultValueOfType(propertyType);
-                object value = property.GetValue(obj);
-                
-                // Ensure that we don't try to set 'null' to a value type
-                if (propertyType.IsValueType)
-                {
-                    if (value == null || value == defaultValue) continue;
-                }
-                else if (value == defaultValue) // Reference type: defaultValue == null
-                {
-                    continue;
-                }
-                
-                _defaultValues.Add(property.Name, property.GetValue(obj));
+                if (!property.CanRead) continue; // We must be able to read the property value
+                _defaultValues.Add(property.Name.Substring(7), property.GetValue(obj));
                 continue;
             }
             
-            IniReflectorValue reflectorValue = property.GetCustomAttribute<IniReflectorValue>();
-            // We must be able to write to that member and it must have our custom attribute
+            // We must be able to write to that member
             // Only default members are allowed to be static
             if (property.GetMethod.IsStatic || !property.CanWrite)
                 continue;
             
+            // It must have our custom attribute
+            IniReflectorValue reflectorValue = property.GetCustomAttribute<IniReflectorValue>();
+            if (reflectorValue == null) continue;
+            
             // Check if section name exists
-            if (reflectorValue == null)
-            {
-                // Try to check using the name of the property
-                if (!_sections.Any(s => property.Name.StartsWith(s.Name))) continue;
-            }
-            else if (string.IsNullOrEmpty(reflectorValue.SectionName))
+            if (string.IsNullOrEmpty(reflectorValue.SectionName))
             {
                 // We prefer the defined name in the attribute, however if that doesn't exist then we use the name of the property
                 string nameToUse = string.IsNullOrEmpty(reflectorValue.Name) ? property.Name : reflectorValue.Name;
                 if (!_sections.Any(s => nameToUse.StartsWith(s.Name))) continue;
             }
             
-            _validProperties.Add(property, reflectorValue);
+            _validProperties.Add(new Tuple<PropertyInfo, IniReflectorValue>(property, reflectorValue));
         }
         
-        FieldInfo[] fields = _iniModel.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+        FieldInfo[] fields = _iniModel.GetFields(MemberFlags);
         foreach (FieldInfo field in fields)
         {
-            if (field.GetCustomAttribute<IniReflectorIgnore>() != null) continue;
-            
             // Members starting with 'Default' are considered to be storing a default value of a different member
             if (field.Name.StartsWith("Default"))
             {
-                Type fieldType = field.FieldType;
-                object defaultValue = GetDefaultValueOfType(fieldType);
-                object value = field.GetValue(obj);
-                
-                // Ensure that we don't try to set 'null' to a value type
-                if (fieldType.IsValueType)
-                {
-                    if (value == null || value == defaultValue) continue;
-                }
-                else if (value == defaultValue) // Reference type: defaultValue == null
-                {
-                    continue;
-                }
-                
-                _defaultValues.Add(field.Name, field.GetValue(obj));
+                _defaultValues.Add(field.Name.Substring(7), field.GetValue(obj));
                 continue;
             }
             
-            IniReflectorValue reflectorValue = field.GetCustomAttribute<IniReflectorValue>();
-            // We must be able to write to that member (not readonly) and it must have our custom attribute
+            // We must be able to write to that member (not readonly)
             // Only default members are allowed to be static
             if (field.IsStatic || field.IsInitOnly) continue;
             
+            // It must have our custom attribute
+            IniReflectorValue reflectorValue = field.GetCustomAttribute<IniReflectorValue>();
+            if (reflectorValue == null) continue;
+            
             // Check if section name exists
-            if (reflectorValue == null)
-            {
-                // Try to check using the name of the field
-                if (!_sections.Any(s => field.Name.StartsWith(s.Name))) continue;
-            }
-            else if (string.IsNullOrEmpty(reflectorValue.SectionName))
+            if (string.IsNullOrEmpty(reflectorValue.SectionName))
             {
                 // We prefer the defined name in the attribute, however if that doesn't exist then we use the name of the field
                 string nameToUse = string.IsNullOrEmpty(reflectorValue.Name) ? field.Name : reflectorValue.Name;
                 if (!_sections.Any(s => nameToUse.StartsWith(s.Name))) continue;
             }
             
-            _validFields.Add(field, reflectorValue);
+            _validFields.Add(new Tuple<FieldInfo, IniReflectorValue>(field, reflectorValue));
         }
-        
-        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Reading {_validProperties.Count} properties.");
-        foreach (KeyValuePair<PropertyInfo, IniReflectorValue> value in _validProperties)
-        {
-            PropertyInfo property = value.Key;
-            IniReflectorValue reflectorValue = value.Value;
-            Type propertyType = property.PropertyType;
-
-            object defaultValue = GetDefaultValueForMember(propertyType, property.Name, reflectorValue);
-            string keyName = reflectorValue?.Name ?? property.Name;
-            string sectionName = reflectorValue?.SectionName;
-            if (string.IsNullOrEmpty(sectionName))
-            {
-                sectionName = _sections.Find(s => keyName.StartsWith(s.Name)).Name;
-            }
-            
-            property.SetValue(obj, ReadValue(propertyType, sectionName, keyName, defaultValue));
-            LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {property.Name} = {property.GetValue(obj)}");
-        }
-        
-        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Reading {_validFields.Count} fields.");
-        foreach (KeyValuePair<FieldInfo, IniReflectorValue> value in _validFields)
-        {
-            FieldInfo field = value.Key;
-            IniReflectorValue reflectorValue = value.Value;
-            Type fieldType = field.FieldType;
-
-            object defaultValue = GetDefaultValueForMember(fieldType, field.Name, reflectorValue);
-            string keyName = reflectorValue?.Name ?? field.Name;
-            string sectionName = reflectorValue?.SectionName;
-            if (string.IsNullOrEmpty(sectionName))
-            {
-                sectionName = _sections.Find(s => keyName.StartsWith(s.Name)).Name;
-            }
-            
-            field.SetValue(obj, ReadValue(fieldType, sectionName, keyName, defaultValue));
-            LogDebug($"IniReflector '{_iniModel.Name}': [{sectionName}] {field.Name} = {field.GetValue(obj)}");
-        }
-        
-        if (withLogging) LogDebug($"IniReflector '{_iniModel.Name}': Finished.");
     }
-
+    
     private static object GetDefaultValueOfType(Type type)
     {
         return type.IsValueType ? Activator.CreateInstance(type) : null;
     }
+}
 
-    private object GetDefaultValueForMember(Type memberType, string memberName, IniReflectorValue reflectorValue)
-    {
-        object defaultValue = GetDefaultValueOfType(memberType);
-        if (reflectorValue is { DefaultValue: not null } && reflectorValue.DefaultValue != defaultValue)
-        {
-            defaultValue = reflectorValue.DefaultValue;
-        }
-        else if (_defaultValues.TryGetValue($"Default{memberName}", out object storedDefaultValue) &&
-                 storedDefaultValue != null && storedDefaultValue != defaultValue)
-        {
-            defaultValue = storedDefaultValue;
-        }
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+internal class IniReflectorSection : Attribute
+{
+    internal readonly string Name;
 
-        return defaultValue;
-    } 
-    
-    private object ReadValue(Type valueType, string sectionName, string keyName, object defaultValue)
+    internal IniReflectorSection(string name)
     {
-        return !valueType.IsEnum
-            ? _iniFile.Read(valueType, sectionName, keyName, defaultValue)
-            // RPH has issues reading enums for some reason so we have to read it as a string
-            : Enum.Parse(valueType, _iniFile.ReadString(sectionName, keyName, defaultValue.ToString()).Trim());
+        Name = name;
     }
-}
-
-internal class IniReflector<T> : IniReflector
-{
-    internal IniReflector(string path) : base(path, typeof(T)) { }
-}
-
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-internal class IniReflectorIgnore : Attribute
-{
-    internal IniReflectorIgnore() { }
 }
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
@@ -238,21 +291,11 @@ internal class IniReflectorValue : Attribute
     internal readonly string Name;
     internal readonly object DefaultValue;
     
-    internal IniReflectorValue(string sectionName, string name = null, object defaultValue = null)
+    internal IniReflectorValue(string sectionName = null, string name = null, object defaultValue = null, string description = null)
     {
         SectionName = sectionName;
         Name = name;
         DefaultValue = defaultValue;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-internal class IniReflectorSection : Attribute
-{
-    internal readonly string Name;
-
-    internal IniReflectorSection(string name)
-    {
-        Name = name;
+        Description = description;
     }
 }

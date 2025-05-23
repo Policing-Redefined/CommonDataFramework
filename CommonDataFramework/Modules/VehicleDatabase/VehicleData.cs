@@ -14,13 +14,11 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 /// </summary>
 public class VehicleData
 {
-    private static readonly WeightedList<EVehicleOwnerType> VehicleOwnerTypes = new(new List<WeightedListItem<EVehicleOwnerType>>
-    {
-        new(EVehicleOwnerType.Driver, 30),
-        new(EVehicleOwnerType.Passenger, 25),
-        new(EVehicleOwnerType.FamilyMember, 25),
-        new(EVehicleOwnerType.RandomPed, 20),
-    });
+    /// <summary>
+    /// Holds the probabilities of different vehicle owners.
+    /// </summary>
+    /// <seealso cref="EVehicleOwnerType"/>
+    private static WeightedList<EVehicleOwnerType> _weightedOwner;
     
     /// <summary>
     /// The vehicle this data belongs do.
@@ -268,7 +266,7 @@ public class VehicleData
             {
                 // Get driver persona and passenger persona (if applicable)
                 PedData driverData = Holder.Driver.GetPedData();
-                Ped passengerToUse = (Holder.Passengers.Length != 0 && VehicleOwnerTypes.Next() == EVehicleOwnerType.Passenger) ? Holder.Passengers.Random() : null;
+                Ped passengerToUse = (Holder.Passengers.Length != 0 && GetRandomOwnerType() == EVehicleOwnerType.Passenger) ? Holder.Passengers.Random() : null;
                 PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
                 
                 // Generate random ped data
@@ -298,12 +296,12 @@ public class VehicleData
     private static EVehicleOwnerType GetSuitableOwnerType(Vehicle vehicle)
     {
         if (!vehicle.Exists() || vehicle.Occupants.Length == 0) return EVehicleOwnerType.RandomPed;
-        EVehicleOwnerType ownerType = VehicleOwnerTypes.Next();
+        EVehicleOwnerType ownerType = GetRandomOwnerType();
         return ownerType switch
         {
             EVehicleOwnerType.Driver when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
             EVehicleOwnerType.FamilyMember when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
-            EVehicleOwnerType.Passenger when vehicle.Passengers.Length == 0 => VehicleOwnerTypes.Next() == EVehicleOwnerType.Driver
+            EVehicleOwnerType.Passenger when vehicle.Passengers.Length == 0 => GetRandomOwnerType() == EVehicleOwnerType.Driver
                 ? EVehicleOwnerType.Driver
                 : EVehicleOwnerType.RandomPed,
             _ => ownerType
@@ -313,6 +311,28 @@ public class VehicleData
     private void UseFakePedData()
     {
         Owner = new PedData(PersonaHelper.GenerateNewPersona());
+    }
+
+    private static EVehicleOwnerType GetRandomOwnerType()
+    {
+        if (_weightedOwner == null) UpdateWeights();
+        return _weightedOwner!.Next();
+    }
+
+    private static void UpdateWeights()
+    {
+        _weightedOwner = new WeightedList<EVehicleOwnerType>(new List<WeightedListItem<EVehicleOwnerType>>
+        {
+            new(EVehicleOwnerType.Driver, CDFSettings.VehicleOwnerDriver),
+            new(EVehicleOwnerType.Passenger, CDFSettings.VehicleOwnerPassenger),
+            new(EVehicleOwnerType.FamilyMember, CDFSettings.VehicleOwnerFamily),
+            new(EVehicleOwnerType.RandomPed, CDFSettings.VehicleOwnerRandom)
+        });
+    }
+
+    internal static void ResetWeights()
+    {
+        _weightedOwner = null;
     }
 }
 
