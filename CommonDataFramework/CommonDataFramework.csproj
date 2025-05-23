@@ -35,14 +35,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LSPD First Response">
-      <HintPath>..\..\..\..\Desktop\References\LSPD First Response.dll</HintPath>
+      <HintPath>C:\References\LSPD First Response.dll</HintPath>
     </Reference>
     <Reference Include="RagePluginHook">
-      <HintPath>..\..\..\..\Desktop\References\RagePluginHook.dll</HintPath>
+      <HintPath>C:\References\RagePluginHook.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>

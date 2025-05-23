@@ -66,5 +66,6 @@ public class EntryPoint : Plugin
     {
         VehicleRegistration.ResetWeights();
         VehicleInsurance.ResetWeights();
+        VehicleData.ResetWeights();
     }
 }
