@@ -7,7 +7,7 @@ namespace CommonDataFramework.Modules.Postals;
 /// <summary>
 /// Handles the postal codes.
 /// </summary>
-internal static class PostalCodeController
+public static class PostalCodeController
 {
     /// <summary>
     /// Gets the active postal code set.
