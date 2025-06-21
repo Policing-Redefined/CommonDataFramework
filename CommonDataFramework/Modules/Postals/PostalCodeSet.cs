@@ -8,7 +8,7 @@ namespace CommonDataFramework.Modules.Postals;
 /// <summary>
 /// A set of postal codes.
 /// </summary>
-internal class PostalCodeSet
+public class PostalCodeSet
 {
     /// <summary>
     /// Gets the name.
