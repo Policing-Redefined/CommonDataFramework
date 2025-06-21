@@ -3,7 +3,7 @@
 /// <summary>
 /// Basically a struct for storing the nearest postal code.
 /// </summary>
-internal class NearestPostalCode
+public class NearestPostalCode
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="NearestPostalCode"/> class.
