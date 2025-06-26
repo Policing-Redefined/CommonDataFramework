@@ -7,17 +7,17 @@ namespace CommonDataFramework.Modules.Postals;
 /// <summary>
 /// Handles the postal codes.
 /// </summary>
-internal static class PostalCodeController
+public static class PostalCodeController
 {
     /// <summary>
     /// Gets the active postal code set.
     /// </summary>
-    public static PostalCodeSet ActivePostalCodeSet { get; private set; }
+    internal static PostalCodeSet ActivePostalCodeSet { get; private set; }
 
     /// <summary>
     /// Gets a list of the installed postal code sets.
     /// </summary>
-    public static List<PostalCodeSet> PostalCodeSets { get; private set; } = [];
+    internal static List<PostalCodeSet> PostalCodeSets { get; private set; } = [];
 
     /// <summary>
     /// The path for the postal codes xml.
@@ -63,9 +63,9 @@ internal static class PostalCodeController
         return nearestCode != null ? new NearestPostalCode(nearestCode, nearestDistance) : null;
     }
 
-    public static string[] GetAllPostalCodeSetNames() => PostalCodeSets.Select(i => i.Name).ToArray();
+    internal static string[] GetAllPostalCodeSetNames() => PostalCodeSets.Select(i => i.Name).ToArray();
 
-    public static void SetActivePostalCodeSet(string name)
+    internal static void SetActivePostalCodeSet(string name)
     {
         ActivePostalCodeSet = PostalCodeSets.FirstOrDefault(i => i.Name == name);
     }
