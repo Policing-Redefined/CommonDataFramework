@@ -8,7 +8,7 @@ namespace CommonDataFramework.Modules.Postals;
 /// <summary>
 /// A set of postal codes.
 /// </summary>
-internal class PostalCodeSet
+public class PostalCodeSet
 {
     /// <summary>
     /// Gets the name.
@@ -25,7 +25,7 @@ internal class PostalCodeSet
     /// </summary>
     /// <param name="filename">The XML file.</param>
     /// <returns>A postal code set object.</returns>
-    public static PostalCodeSet FromXML(string filename)
+    internal static PostalCodeSet FromXML(string filename)
     {
         try
         {
