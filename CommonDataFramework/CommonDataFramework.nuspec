@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>CommonDataFramework</id>
+        <version>1.0.0.5</version>
+        <authors>Policing Redefined Team</authors>
+        <owners>MarcelWRLD</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an
+            extended vehicle and ped record API for developers. It's main goal is to replace missing
+            features of the LSPDFR API while providing synchronization of that data across all
+            plugins who use it. It is used by the upcoming 'Policing Redefined' plugin and is
+            already planned to be implement in current and future plugins.</description>
+        <tags>gtav;lspdfr</tags>
+        <dependencies>
+            <!-- Optional: list your NuGet dependencies here -->
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\CommonDataFramework.dll" target="lib\net48\" />
+        <file src="bin\Release\CommonDataFramework.xml" target="lib\net48\" /> <!-- optional: XML
+        docs -->
+    </files>
+</package>
