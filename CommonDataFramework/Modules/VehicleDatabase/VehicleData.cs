@@ -375,6 +375,8 @@ public class VehicleData
         _weightedOwner = null;
     }
     
+    // Credit to Opus49 for the idea on how to approach this
+    // https://github.com/Immersive-Plugins-Team/CalloutInterfaceAPI/blob/2c5a3030debc18215f5bb5bcb449351e7869a7d3/CalloutInterfaceAPI/Functions.cs#L57
     private static readonly List<(Func<float, float, float, bool> condition, string name)> Colors = new()
     {
         ((h, s, b) => b < 0.12f, "Black"),
@@ -395,9 +397,6 @@ public class VehicleData
         ((h, s, b) => h is >= 255 and < 290, "Purple"),
         ((h, s, b) => h is >= 290 and < 330, "Magenta")
     };
-
-
-
 
     private static string GetColorName(Color color)
     {
