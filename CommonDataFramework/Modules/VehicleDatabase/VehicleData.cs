@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using CommonDataFramework.Engine.Utility.Extensions;
 using CommonDataFramework.Engine.Utility.Resources;
@@ -25,6 +26,34 @@ public class VehicleData
     /// </summary>
     public readonly Vehicle Holder;
 
+    /// <summary>
+    /// The vehicle's primary color
+    /// </summary>
+    public readonly string PrimaryColor;
+    /// <summary>
+    /// The vehicle's secondary color
+    /// </summary>
+    public readonly string SecondaryColor;
+
+    /// <summary>
+    /// The vehicle's primary color according to GTA
+    /// </summary>
+    public readonly string PrimaryColorSpecific;
+    
+    /// <summary>
+    /// The vehicle's secondary color according to GTA
+    /// </summary>
+    public readonly string SecondaryColorSpecific;
+    
+    /// <summary>
+    /// The vehicle's make.
+    /// </summary>
+    public readonly string Make;
+    /// <summary>
+    /// The vehicle's model
+    /// </summary>
+    public readonly string Model;
+    
     private bool _isStolen; // Stolen cache
     /// <summary>
     /// Gets or sets whether the vehicle is stolen or not.
@@ -173,6 +202,17 @@ public class VehicleData
         // If null, a random status will be given.
         Registration = new VehicleRegistration(special ? EDocumentStatus.Valid : null);
         Insurance = new VehicleInsurance(special ? EDocumentStatus.Valid : null);
+
+        PrimaryColor = GetColorName(Holder.PrimaryColor);
+        SecondaryColor = GetColorName(Holder.SecondaryColor);
+
+        PrimaryColorSpecific = NativeFunction.Natives.xB45085B721EFD38C<string>(Holder, false); // GET_VEHICLE_MOD_COLOR_1_NAME
+        SecondaryColorSpecific = NativeFunction.Natives.x4967A516ED23A5A1<string>(Holder); // GET_VEHICLE_MOD_COLOR_2_NAME
+        
+        var make = Game.GetLocalizedString(NativeFunction.Natives.xF7AF4F159FF99F97<string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
+        Make = make ?? "Unknown";
+        var model = Game.GetLocalizedString(NativeFunction.Natives.xB215AAC32D25D019<string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
+        Model = model ?? "Unknown";
         
         VehicleDataController.Database.Add(vehicle, this);
     }
@@ -333,6 +373,44 @@ public class VehicleData
     internal static void ResetWeights()
     {
         _weightedOwner = null;
+    }
+    
+    // Credit to Opus49 for the idea on how to approach this
+    // https://github.com/Immersive-Plugins-Team/CalloutInterfaceAPI/blob/2c5a3030debc18215f5bb5bcb449351e7869a7d3/CalloutInterfaceAPI/Functions.cs#L57
+    private static readonly List<(Func<float, float, float, bool> condition, string name)> Colors = new()
+    {
+        ((h, s, b) => b < 0.12f, "Black"),
+        ((h, s, b) => s < 0.1f && b > 0.9f, "White"),
+        ((h, s, b) => s < 0.15f && b >= 0.12f && b <= 0.9f, "Gray"),
+        
+        ((h, s, b) => (h >= 330 || h < 15) && s > 0.4f && b > 0.7f, "Pink"),
+        ((h, s, b) => h is >= 15 and < 45 && s > 0.5f && b < 0.6f, "Brown"),
+        ((h, s, b) => h is >= 45 and < 65 && b > 0.85f, "Tan"),
+        ((h, s, b) => h is >= 70 and < 165 && s < 0.5f && b < 0.5f, "Olive"),
+        
+        ((h, s, b) => (h >= 345 || h < 15), "Red"),
+        ((h, s, b) => h is >= 15 and < 45, "Orange"),
+        ((h, s, b) => h is >= 45 and < 70, "Yellow"),
+        ((h, s, b) => h is >= 70 and < 165, "Green"),
+        ((h, s, b) => h is >= 165 and < 200, "Cyan"),
+        ((h, s, b) => h is >= 200 and < 255, "Blue"),
+        ((h, s, b) => h is >= 255 and < 290, "Purple"),
+        ((h, s, b) => h is >= 290 and < 330, "Magenta")
+    };
+
+    private static string GetColorName(Color color)
+    {
+        var h = color.GetHue();
+        var s = color.GetSaturation();
+        var b = color.GetBrightness();
+
+        foreach (var (condition, name) in Colors)
+        {
+            if (condition(h, s, b))
+                return name;
+        }
+
+        return $"RGB({color.R}, {color.G}, {color.B})"; // fallback
     }
 }
 

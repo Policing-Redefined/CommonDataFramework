@@ -40,7 +40,6 @@ Common Data Framework 'CDF' is an open-source LSPDFR plugin that offers an exten
 ### Example images by PR
 ![Example of PR using PedData](https://i.ibb.co/NSLw5F1/Example-Ped-Data.png)
 ![Example of PR using VehicleData](https://i.ibb.co/1f5LttR/Example-Vehicle-Data.png)
-<br><br/>
 
 ## Example for developers
 ```cs
