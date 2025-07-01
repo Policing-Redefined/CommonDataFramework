@@ -34,6 +34,17 @@ public class VehicleData
     /// The vehicle's secondary color
     /// </summary>
     public readonly string SecondaryColor;
+
+    /// <summary>
+    /// The vehicle's primary color according to GTA
+    /// </summary>
+    public readonly string PrimaryColorSpecific;
+    
+    /// <summary>
+    /// The vehicle's secondary color according to GTA
+    /// </summary>
+    public readonly string SecondaryColorSpecific;
+    
     /// <summary>
     /// The vehicle's make.
     /// </summary>
@@ -194,6 +205,10 @@ public class VehicleData
 
         PrimaryColor = GetColorName(Holder.PrimaryColor);
         SecondaryColor = GetColorName(Holder.SecondaryColor);
+
+        PrimaryColorSpecific = NativeFunction.Natives.xB45085B721EFD38C<string>(Holder, false); // GET_VEHICLE_MOD_COLOR_1_NAME
+        SecondaryColorSpecific = NativeFunction.Natives.x4967A516ED23A5A1<string>(Holder); // GET_VEHICLE_MOD_COLOR_2_NAME
+        
         var make = Game.GetLocalizedString(NativeFunction.Natives.xF7AF4F159FF99F97<string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
         Make = make ?? "Unknown";
         var model = Game.GetLocalizedString(NativeFunction.Natives.xB215AAC32D25D019<string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
