@@ -13,14 +13,14 @@ namespace CommonDataFramework.Modules.VehicleDatabase;
 /// <summary>
 /// Represents a data record of a <see cref="Rage.Vehicle"/>.
 /// </summary>
-public class VehicleData
+public partial class VehicleData
 {
     /// <summary>
     /// Holds the probabilities of different vehicle owners.
     /// </summary>
     /// <seealso cref="EVehicleOwnerType"/>
     private static WeightedList<EVehicleOwnerType> _weightedOwner;
-    
+
     /// <summary>
     /// The vehicle this data belongs do.
     /// </summary>
@@ -30,6 +30,7 @@ public class VehicleData
     /// The vehicle's primary color
     /// </summary>
     public readonly string PrimaryColor;
+
     /// <summary>
     /// The vehicle's secondary color
     /// </summary>
@@ -39,22 +40,24 @@ public class VehicleData
     /// The vehicle's primary color according to GTA
     /// </summary>
     public readonly string PrimaryColorSpecific;
-    
+
     /// <summary>
     /// The vehicle's secondary color according to GTA
     /// </summary>
     public readonly string SecondaryColorSpecific;
-    
+
     /// <summary>
     /// The vehicle's make.
     /// </summary>
     public readonly string Make;
+
     /// <summary>
     /// The vehicle's model
     /// </summary>
     public readonly string Model;
-    
+
     private bool _isStolen; // Stolen cache
+
     /// <summary>
     /// Gets or sets whether the vehicle is stolen or not.
     /// Points to <see cref="Rage.Vehicle.IsStolen"/>.
@@ -70,28 +73,30 @@ public class VehicleData
             {
                 _isStolen = Holder.IsStolen;
             }
-            
+
             return _isStolen;
         }
         set
         {
             if (IsStolen == value) return;
-            
+
             if (Holder.Exists())
             {
                 Holder.IsStolen = value;
             }
-            
+
             _isStolen = value;
-            if (_ownerType != EVehicleOwnerType.RandomPed && _ownerType != EVehicleOwnerType.Manual && _ownerType != EVehicleOwnerType.Government)
+            if (_ownerType != EVehicleOwnerType.RandomPed &&
+                _ownerType != EVehicleOwnerType.Manual &&
+                _ownerType != EVehicleOwnerType.Government)
             {
                 SetVehicleOwner(null); // Change owner because stolen state changed
             }
         }
     }
-    
+
     private readonly HashSet<VehicleBOLO> _bolos = new() { };
-    
+
     /// <summary>
     /// Whether the vehicle has any <see cref="VehicleBOLO"/>s.
     /// </summary>
@@ -106,7 +111,7 @@ public class VehicleData
     {
         return _bolos.ToArray();
     }
-    
+
     /// <summary>
     /// Adds a bolo to this vehicle.
     /// </summary>
@@ -116,7 +121,7 @@ public class VehicleData
         if (bolo == null) return;
         _bolos.Add(bolo);
     }
-    
+
     /// <summary>
     /// Removes a bolo from this vehicle.
     /// </summary>
@@ -126,7 +131,7 @@ public class VehicleData
         if (bolo == null || _bolos.Count == 0) return;
         _bolos.Remove(bolo);
     }
-    
+
     /// <summary>
     /// Gets the owner of this vehicle.
     /// Make sure to check <see cref="PedData.HasRealPed"/> before making use of the <see cref="PedData.Holder"/> property,
@@ -136,8 +141,9 @@ public class VehicleData
     /// </summary>
     /// <seealso cref="PedData"/>
     public PedData Owner { get; private set; }
-    
+
     private EVehicleOwnerType _ownerType;
+
     /// <summary>
     /// Gets the type of owner.
     /// </summary>
@@ -160,11 +166,12 @@ public class VehicleData
 
             if (Holder.Exists()) // Set the owner within LSPDFR's API
             {
-                LSPDFRFunctions.SetVehicleOwnerName(Holder, value == EVehicleOwnerType.Government ? "Government" : Owner.FullName);
+                LSPDFRFunctions.SetVehicleOwnerName(Holder,
+                    value == EVehicleOwnerType.Government ? "Government" : Owner.FullName);
             }
         }
     }
-    
+
     private bool ShouldUpdateOwnerForStolenVehicle()
     {
         // Don't change owner for government vehicles even if stolen
@@ -172,7 +179,7 @@ public class VehicleData
         {
             return false;
         }
-        
+
         // Don't change owner if already set to RandomPed or Manual
         return _ownerType != EVehicleOwnerType.RandomPed && _ownerType != EVehicleOwnerType.Manual;
     }
@@ -182,25 +189,25 @@ public class VehicleData
     /// </summary>
     /// <seealso cref="VehicleIdentificationNumber"/>
     public readonly VehicleIdentificationNumber Vin;
-    
+
     /// <summary>
     /// Gets the registration of this vehicle.
     /// </summary>
     /// <seealso cref="VehicleRegistration"/>
     public readonly VehicleRegistration Registration;
-    
+
     /// <summary>
     /// Gets the insurance of this vehicle.
     /// </summary>
     /// <seealso cref="VehicleInsurance"/>
     public readonly VehicleInsurance Insurance;
-    
+
     /// <summary>
     /// Determines whether the data should be removed from the database during the next prune,
     /// after the vehicle stopped existing.
     /// </summary>
     internal bool RemoveDuringNextPrune;
-    
+
     internal VehicleData(Vehicle vehicle)
     {
         Holder = vehicle;
@@ -209,7 +216,10 @@ public class VehicleData
 
         // Create documents
         bool special = vehicle.Model.IsEmergencyVehicle;
-        Vin = new VehicleIdentificationNumber((!special && GetRandomChance(CDFSettings.VehicleVinScratchedChance)) ? EVinStatus.Scratched : EVinStatus.Valid);
+        Vin = new VehicleIdentificationNumber(
+            (!special && GetRandomChance(CDFSettings.VehicleVinScratchedChance))
+                ? EVinStatus.Scratched
+                : EVinStatus.Valid);
         // If null, a random status will be given.
         Registration = new VehicleRegistration(special ? EDocumentStatus.Valid : null);
         Insurance = new VehicleInsurance(special ? EDocumentStatus.Valid : null);
@@ -217,17 +227,29 @@ public class VehicleData
         PrimaryColor = GetColorName(Holder.PrimaryColor);
         SecondaryColor = GetColorName(Holder.SecondaryColor);
 
-        PrimaryColorSpecific = NativeFunction.Natives.xB45085B721EFD38C<string>(Holder, false); // GET_VEHICLE_MOD_COLOR_1_NAME
-        SecondaryColorSpecific = NativeFunction.Natives.x4967A516ED23A5A1<string>(Holder); // GET_VEHICLE_MOD_COLOR_2_NAME
-        
-        var make = Game.GetLocalizedString(NativeFunction.Natives.xF7AF4F159FF99F97<string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
+        PrimaryColorSpecific =
+            NativeFunction.Natives
+                .xB45085B721EFD38C<string>(Holder, false); // GET_VEHICLE_MOD_COLOR_1_NAME
+        SecondaryColorSpecific =
+            NativeFunction.Natives
+                .x4967A516ED23A5A1<string>(Holder); // GET_VEHICLE_MOD_COLOR_2_NAME
+
+        var make =
+            Game.GetLocalizedString(
+                NativeFunction.Natives
+                    .xF7AF4F159FF99F97<
+                        string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
         Make = make ?? "Unknown";
-        var model = Game.GetLocalizedString(NativeFunction.Natives.xB215AAC32D25D019<string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
+        var model =
+            Game.GetLocalizedString(
+                NativeFunction.Natives
+                    .xB215AAC32D25D019<
+                        string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
         Model = model ?? "Unknown";
-        
+
         VehicleDataController.Database.Add(vehicle, this);
     }
-    
+
     /// <summary>
     /// Attempts to set the owner using an owner type.
     /// </summary>
@@ -246,25 +268,67 @@ public class VehicleData
 
     private bool SetVehicleOwner(EVehicleOwnerType? ownerType, PedData pedData = null)
     {
-        var context = new OwnerAssignmentContext(this, ownerType, pedData);
-        var strategy = OwnerAssignmentStrategyFactory.CreateStrategy(context);
-        
-        if (strategy == null)
+        // Government vehicles (emergency vehicles) default to government owner when not explicitly specified
+        if (Holder.Exists() && Holder.Model.IsEmergencyVehicle)
         {
-            return false;
+            return AssignGovernmentOwner();
         }
-        
-        var result = strategy.AssignOwner(context);
-        if (result.Assigned)
-        {
-            Owner = result.Owner;
-            OwnerType = result.OwnerType;
-        }
-        
-        return result.Assigned;
-    }
-    
 
+        // Stolen handling: either explicitly stolen by current state, or randomly chosen when not specified
+        var treatAsStolen = IsStolen ||
+                            (ownerType == null && GetRandomChance(CDFSettings.VehicleStolenChance));
+        if (treatAsStolen)
+        {
+            // Only RandomPed or Manual are allowed when stolen
+            if (ownerType.HasValue && ownerType != EVehicleOwnerType.RandomPed &&
+                ownerType != EVehicleOwnerType.Manual)
+            {
+                return false;
+            }
+
+            if (ownerType.HasValue && ownerType == EVehicleOwnerType.Manual)
+            {
+                if (pedData == null) return false;
+                Owner = pedData;
+                OwnerType = EVehicleOwnerType.Manual;
+                return true;
+            }
+
+            // Mark as stolen and assign random ped
+            IsStolen = true;
+            return AssignRandomPedOwner();
+        }
+
+        // Manual explicit owner
+        if (ownerType.HasValue && ownerType == EVehicleOwnerType.Manual)
+        {
+            if (pedData == null) return false;
+            Owner = pedData;
+            OwnerType = EVehicleOwnerType.Manual;
+            return true;
+        }
+
+        // Specific owner type requested
+        if (ownerType.HasValue)
+        {
+            return AssignBasedOnType(ownerType.Value);
+        }
+        
+        var detected = GetAutoDetectedOwnerType(Holder);
+        return AssignBasedOnType(detected);
+    }
+
+    private bool AssignBasedOnType(EVehicleOwnerType ownerType)
+    {
+        return ownerType switch
+        {
+            EVehicleOwnerType.Driver => AssignDriverOwner(),
+            EVehicleOwnerType.Passenger => AssignPassengerOwner(),
+            EVehicleOwnerType.FamilyMember => AssignFamilyMemberOwner(),
+            EVehicleOwnerType.Government => AssignGovernmentOwner(),
+            _ => false
+        };
+    }
 
     internal static EVehicleOwnerType GetRandomOwnerType()
     {
@@ -274,42 +338,44 @@ public class VehicleData
 
     private static void UpdateWeights()
     {
-        _weightedOwner = new WeightedList<EVehicleOwnerType>(new List<WeightedListItem<EVehicleOwnerType>>
-        {
-            new(EVehicleOwnerType.Driver, CDFSettings.VehicleOwnerDriver),
-            new(EVehicleOwnerType.Passenger, CDFSettings.VehicleOwnerPassenger),
-            new(EVehicleOwnerType.FamilyMember, CDFSettings.VehicleOwnerFamily),
-            new(EVehicleOwnerType.RandomPed, CDFSettings.VehicleOwnerRandom)
-        });
+        _weightedOwner = new WeightedList<EVehicleOwnerType>(
+            new List<WeightedListItem<EVehicleOwnerType>>
+            {
+                new(EVehicleOwnerType.Driver, CDFSettings.VehicleOwnerDriver),
+                new(EVehicleOwnerType.Passenger, CDFSettings.VehicleOwnerPassenger),
+                new(EVehicleOwnerType.FamilyMember, CDFSettings.VehicleOwnerFamily),
+                new(EVehicleOwnerType.RandomPed, CDFSettings.VehicleOwnerRandom)
+            });
     }
 
     internal static void ResetWeights()
     {
         _weightedOwner = null;
     }
-    
+
     // Credit to Opus49 for the idea on how to approach this
     // https://github.com/Immersive-Plugins-Team/CalloutInterfaceAPI/blob/2c5a3030debc18215f5bb5bcb449351e7869a7d3/CalloutInterfaceAPI/Functions.cs#L57
-    private static readonly List<(Func<float, float, float, bool> condition, string name)> Colors = new()
-    {
-        ((h, s, b) => b < 0.12f, "Black"),
-        ((h, s, b) => s < 0.1f && b > 0.9f, "White"),
-        ((h, s, b) => s < 0.15f && b >= 0.12f && b <= 0.9f, "Gray"),
-        
-        ((h, s, b) => (h >= 330 || h < 15) && s > 0.4f && b > 0.7f, "Pink"),
-        ((h, s, b) => h is >= 15 and < 45 && s > 0.5f && b < 0.6f, "Brown"),
-        ((h, s, b) => h is >= 45 and < 65 && b > 0.85f, "Tan"),
-        ((h, s, b) => h is >= 70 and < 165 && s < 0.5f && b < 0.5f, "Olive"),
-        
-        ((h, s, b) => (h >= 345 || h < 15), "Red"),
-        ((h, s, b) => h is >= 15 and < 45, "Orange"),
-        ((h, s, b) => h is >= 45 and < 70, "Yellow"),
-        ((h, s, b) => h is >= 70 and < 165, "Green"),
-        ((h, s, b) => h is >= 165 and < 200, "Cyan"),
-        ((h, s, b) => h is >= 200 and < 255, "Blue"),
-        ((h, s, b) => h is >= 255 and < 290, "Purple"),
-        ((h, s, b) => h is >= 290 and < 330, "Magenta")
-    };
+    private static readonly List<(Func<float, float, float, bool> condition, string name)> Colors =
+        new()
+        {
+            ((h, s, b) => b < 0.12f, "Black"),
+            ((h, s, b) => s < 0.1f && b > 0.9f, "White"),
+            ((h, s, b) => s < 0.15f && b >= 0.12f && b <= 0.9f, "Gray"),
+
+            ((h, s, b) => (h >= 330 || h < 15) && s > 0.4f && b > 0.7f, "Pink"),
+            ((h, s, b) => h is >= 15 and < 45 && s > 0.5f && b < 0.6f, "Brown"),
+            ((h, s, b) => h is >= 45 and < 65 && b > 0.85f, "Tan"),
+            ((h, s, b) => h is >= 70 and < 165 && s < 0.5f && b < 0.5f, "Olive"),
+
+            ((h, s, b) => (h >= 345 || h < 15), "Red"),
+            ((h, s, b) => h is >= 15 and < 45, "Orange"),
+            ((h, s, b) => h is >= 45 and < 70, "Yellow"),
+            ((h, s, b) => h is >= 70 and < 165, "Green"),
+            ((h, s, b) => h is >= 165 and < 200, "Cyan"),
+            ((h, s, b) => h is >= 200 and < 255, "Blue"),
+            ((h, s, b) => h is >= 255 and < 290, "Purple"),
+            ((h, s, b) => h is >= 290 and < 330, "Magenta")
+        };
 
     private static string GetColorName(Color color)
     {
@@ -333,12 +399,12 @@ public class VehicleData
 public class VehicleBOLO
 {
     private bool _isActive = true;
-    
+
     /// <summary>
     /// Whether this BOLO is active.
     /// </summary>
     public bool IsActive => _isActive && DateTime.Now < Expires && DateTime.Now > Issued;
-    
+
     /// <summary>
     /// Reason for the BOLO.
     /// </summary>
@@ -358,7 +424,7 @@ public class VehicleBOLO
     /// Agency the BOLO was issued by.
     /// </summary>
     public readonly string IssuedBy;
-    
+
     /// <summary>
     /// Creates a BOLO for a vehicle.
     /// </summary>
@@ -373,7 +439,7 @@ public class VehicleBOLO
         Expires = expires;
         IssuedBy = issuedBy;
     }
-    
+
     /// <summary>
     /// Sets the active state of the BOLO.
     /// </summary>
@@ -390,31 +456,31 @@ public enum EVehicleOwnerType
     /// The driver is the owner of the vehicle.
     /// </summary>
     Driver,
-        
+
     /// <summary>
     /// A passenger is the owner of the vehicle.
     /// </summary>
     Passenger,
-        
+
     /// <summary>
     /// A family member is the owner of the vehicle.
     /// </summary>
     /// <remarks>A passenger can be a family member too.</remarks>
     FamilyMember,
-        
+
     /// <summary>
     /// A random ped is the owner of the vehicle.
     /// </summary>
     /// <remarks>Is also true when the vehicle is stolen.</remarks>
     RandomPed,
-        
+
     /// <summary>
     /// This vehicle is owned by the government.
     /// </summary>
     /// <remarks><see cref="VehicleData.Owner"/> does not have a valid ped (<see cref="PedData.HasRealPed"/> is false).</remarks>
     /// <example>Generally emergency vehicles</example>
     Government,
-    
+
     /*
     /// <summary>
     /// This vehicle is owner by a company.
@@ -422,10 +488,9 @@ public enum EVehicleOwnerType
     /// <example>LSIA, Bus company...</example>
     Company,
     */
-    
+
     /// <summary>
     /// This vehicles owner <see cref="PedData"/> has been set manually.
     /// </summary>
     Manual
 }
-
