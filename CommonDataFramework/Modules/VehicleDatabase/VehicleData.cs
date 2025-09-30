@@ -90,7 +90,7 @@ public class VehicleData
         }
     }
     
-    private readonly HashSet<VehicleBOLO> _bolos = [];
+    private readonly HashSet<VehicleBOLO> _bolos = new() { };
     
     /// <summary>
     /// Whether the vehicle has any <see cref="VehicleBOLO"/>s.
@@ -147,8 +147,7 @@ public class VehicleData
         get
         {
             // Check if the vehicle was marked as stolen after this data has been generated and needs to updated.
-            if (IsStolen && (!Holder.Exists() || !Holder.Model.IsEmergencyVehicle) // If it is a government vehicle, then don't change the vehicle owner (even though it's stolen)
-                && _ownerType != EVehicleOwnerType.RandomPed && _ownerType != EVehicleOwnerType.Manual)
+            if (IsStolen && ShouldUpdateOwnerForStolenVehicle())
             {
                 SetVehicleOwner(null);
             }
@@ -164,6 +163,18 @@ public class VehicleData
                 LSPDFRFunctions.SetVehicleOwnerName(Holder, value == EVehicleOwnerType.Government ? "Government" : Owner.FullName);
             }
         }
+    }
+    
+    private bool ShouldUpdateOwnerForStolenVehicle()
+    {
+        // Don't change owner for government vehicles even if stolen
+        if (Holder.Exists() && Holder.Model.IsEmergencyVehicle)
+        {
+            return false;
+        }
+        
+        // Don't change owner if already set to RandomPed or Manual
+        return _ownerType != EVehicleOwnerType.RandomPed && _ownerType != EVehicleOwnerType.Manual;
     }
 
     /// <summary>
@@ -235,125 +246,27 @@ public class VehicleData
 
     private bool SetVehicleOwner(EVehicleOwnerType? ownerType, PedData pedData = null)
     {
-        // No owner type was specified, so let's do some basic checks
-        if (ownerType == null)
-        {
-            if (Holder.Exists() && Holder.Model.IsEmergencyVehicle) // This vehicle is owned by the government (priority over the stolen check)
-            {
-                Persona gov = PersonaHelper.GenerateNewPersona();
-                gov.Forename = "";
-                gov.Surname = "Government";
-                gov.ELicenseState = ELicenseState.Valid;
-                gov.Wanted = false;
-
-                Owner = new PedData(gov);
-                OwnerType = EVehicleOwnerType.Government;
-                
-                return true;
-            }
-            
-            if (IsStolen || GetRandomChance(CDFSettings.VehicleStolenChance)) // This vehicle owner must be a random ped if the vehicle is marked as stolen
-            {
-                UseFakePedData();
-                OwnerType = EVehicleOwnerType.RandomPed;
-                IsStolen = true;
-                return true;
-            }
-        }
+        var context = new OwnerAssignmentContext(this, ownerType, pedData);
+        var strategy = OwnerAssignmentStrategyFactory.CreateStrategy(context);
         
-        // Use the provided one or get a random one.
-        EVehicleOwnerType owner = ownerType ?? GetSuitableOwnerType(Holder);
-
-        // If the vehicle does not exist, we can't make use of occupants.
-        if (!Holder.Exists() && owner is EVehicleOwnerType.Driver or EVehicleOwnerType.Passenger or EVehicleOwnerType.FamilyMember)
+        if (strategy == null)
         {
             return false;
         }
-
-        // If the vehicle is marked as stolen, only allow 'RandomPed' or 'Manual' type
-        if (IsStolen && owner != EVehicleOwnerType.RandomPed && owner != EVehicleOwnerType.Manual)
+        
+        var result = strategy.AssignOwner(context);
+        if (result.Assigned)
         {
-            return false;
-        }
-
-        // We are manually setting the owner
-        if (owner == EVehicleOwnerType.Manual)
-        {
-            if (pedData == null) // Data must be provided
-            {
-                return false;
-            }
-            
-            OwnerType = owner;
-            Owner = pedData;
-            
-            return true;
+            Owner = result.Owner;
+            OwnerType = result.OwnerType;
         }
         
-        switch (owner)
-        {
-            case EVehicleOwnerType.Driver:
-            {
-                Owner = Holder.Driver.GetPedData();
-                break;
-            }
-            case EVehicleOwnerType.Passenger:
-            {
-                Owner = Holder.Passengers.Random().GetPedData();
-                break;
-            }
-            case EVehicleOwnerType.FamilyMember:
-            {
-                // Get driver persona and passenger persona (if applicable)
-                PedData driverData = Holder.Driver.GetPedData();
-                Ped passengerToUse = (Holder.Passengers.Length != 0 && GetRandomOwnerType() == EVehicleOwnerType.Passenger) ? Holder.Passengers.Random() : null;
-                PedData passengerData = passengerToUse != null ? passengerToUse.GetPedData() : null;
-                
-                // Generate random ped data
-                UseFakePedData();
-                
-                driverData.Lastname = Owner.Lastname; // Match driver lastname with family name
-                if (passengerData != null) // A passenger can be a member of the family, but not the owner of the vehicle.
-                {
-                    passengerData.Lastname = Owner.Lastname;
-                }
-                
-                break;
-            }
-            case EVehicleOwnerType.RandomPed:
-            {
-                UseFakePedData();
-                break;
-            }
-            default:
-                throw new InvalidEnumArgumentException($"{nameof(EVehicleOwnerType)}: Invalid owner type: {owner}.");
-        }
-
-        OwnerType = owner;
-        return true;
+        return result.Assigned;
     }
     
-    private static EVehicleOwnerType GetSuitableOwnerType(Vehicle vehicle)
-    {
-        if (!vehicle.Exists() || vehicle.Occupants.Length == 0) return EVehicleOwnerType.RandomPed;
-        EVehicleOwnerType ownerType = GetRandomOwnerType();
-        return ownerType switch
-        {
-            EVehicleOwnerType.Driver when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
-            EVehicleOwnerType.FamilyMember when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
-            EVehicleOwnerType.Passenger when vehicle.Passengers.Length == 0 => GetRandomOwnerType() == EVehicleOwnerType.Driver
-                ? EVehicleOwnerType.Driver
-                : EVehicleOwnerType.RandomPed,
-            _ => ownerType
-        };
-    }
 
-    private void UseFakePedData()
-    {
-        Owner = new PedData(PersonaHelper.GenerateNewPersona());
-    }
 
-    private static EVehicleOwnerType GetRandomOwnerType()
+    internal static EVehicleOwnerType GetRandomOwnerType()
     {
         if (_weightedOwner == null) UpdateWeights();
         return _weightedOwner!.Next();
@@ -515,3 +428,4 @@ public enum EVehicleOwnerType
     /// </summary>
     Manual
 }
+
