@@ -75,6 +75,7 @@
     <Compile Include="Modules\VehicleDatabase\VehicleData.cs" />
     <Compile Include="Modules\VehicleDatabase\VehicleDataController.cs" />
     <Compile Include="Modules\VehicleDatabase\VehicleDocuments.cs" />
+    <Compile Include="Modules\VehicleDatabase\VehicleOwnerAssignment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
