@@ -12,7 +12,7 @@ public static class PostalCodeController
     /// <summary>
     /// Gets the active postal code set.
     /// </summary>
-    internal static PostalCodeSet ActivePostalCodeSet { get; private set; }
+    public static PostalCodeSet ActivePostalCodeSet { get; private set; }
 
     /// <summary>
     /// Gets a list of the installed postal code sets.
