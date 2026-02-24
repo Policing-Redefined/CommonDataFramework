@@ -38,6 +38,7 @@
     <Reference Include="LSPD First Response">
       <HintPath>C:\References\LSPD First Response.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="RagePluginHook">
       <HintPath>C:\References\RagePluginHook.dll</HintPath>
     </Reference>
