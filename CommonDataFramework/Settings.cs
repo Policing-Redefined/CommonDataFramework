@@ -13,23 +13,23 @@ internal class Settings
     // Default: Vehicle documents
     internal const int DefaultVehicleStolenChance = 8;
     // -- Registration --
-    internal const int DefaultVehicleRegValidChance = 65;
-    internal const int DefaultVehicleRegExpiredChance = 20;
+    internal const int DefaultVehicleRegValidChance = 80;
+    internal const int DefaultVehicleRegExpiredChance = 10;
     internal const int DefaultVehicleRegRevokedChance = 5;
-    internal const int DefaultVehicleUnregisteredChance = 10;
+    internal const int DefaultVehicleUnregisteredChance = 5;
     // -- Insurance --
-    internal const int DefaultVehicleInsValidChance = 55;
-    internal const int DefaultVehicleInsExpiredChance = 25;
+    internal const int DefaultVehicleInsValidChance = 80;
+    internal const int DefaultVehicleInsExpiredChance = 10;
     internal const int DefaultVehicleInsRevokedChance = 5;
-    internal const int DefaultVehicleUninsuredChance = 15;
+    internal const int DefaultVehicleUninsuredChance = 5;
     // -- VIN --
     internal const int DefaultVehicleVinValidChance = 90;
     internal const int DefaultVehicleVinScratchedChance = 10;
     // -- Driver --
-    internal const int DefaultVehicleOwnerDriver = 30;
-    internal const int DefaultVehicleOwnerPassenger = 25;
-    internal const int DefaultVehicleOwnerFamily = 25;
-    internal const int DefaultVehicleOwnerRandom = 20;
+    internal const int DefaultVehicleOwnerDriver = 70;
+    internal const int DefaultVehicleOwnerPassenger = 15;
+    internal const int DefaultVehicleOwnerFamily = 10;
+    internal const int DefaultVehicleOwnerRandom = 5;
     
     // Default: Ped
     internal const int DefaultPedProbationChance = 25;
