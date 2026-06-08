@@ -74,6 +74,11 @@ public static class PostalCodeController
     {
         foreach (string filename in Directory.GetFiles(PostalXmlPath).Where(x => x.EndsWith(".xml")))
         {
+            if (!File.Exists(filename)) {
+                LogWarn($"Postal code file {filename} does not exist.");
+                continue;
+            }
+            
             PostalCodeSet postalCodeSet = PostalCodeSet.FromXML(filename);
             if (postalCodeSet != null)
             {
