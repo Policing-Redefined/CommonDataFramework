@@ -19,6 +19,6 @@
     <files>
         <file src="bin\Release\CommonDataFramework.dll" target="lib\net48\" />
         <file src="bin\Release\CommonDataFramework.xml" target="lib\net48\" /> <!-- optional: XML docs -->
-        <file src="..\..\README.md" target="docs\" />
+        <file src="..\README.md" target="docs\" />
     </files>
 </package>
