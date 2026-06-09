@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>CommonDataFramework</id>
-        <version>1.0.0.5</version>
+        <version>1.0.0.9</version>
         <authors>Policing Redefined Team</authors>
         <owners>MarcelWRLD</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -18,7 +18,7 @@
     </metadata>
     <files>
         <file src="bin\Release\CommonDataFramework.dll" target="lib\net48\" />
-        <file src="bin\Release\CommonDataFramework.xml" target="lib\net48\" /> <!-- optional: XML
-        docs -->
+        <file src="bin\Release\CommonDataFramework.xml" target="lib\net48\" /> <!-- optional: XML docs -->
+        <file src="..\README.md" target="docs\" />
     </files>
 </package>

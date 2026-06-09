@@ -209,9 +209,10 @@ public class VehicleData
         PrimaryColorSpecific = NativeFunction.Natives.xB45085B721EFD38C<string>(Holder, false); // GET_VEHICLE_MOD_COLOR_1_NAME
         SecondaryColorSpecific = NativeFunction.Natives.x4967A516ED23A5A1<string>(Holder); // GET_VEHICLE_MOD_COLOR_2_NAME
         
-        var make = Game.GetLocalizedString(NativeFunction.Natives.xF7AF4F159FF99F97<string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
+        string make = Game.GetLocalizedString(NativeFunction.Natives.xF7AF4F159FF99F97<string>(Holder.Model.Hash)); // GET_MAKE_NAME_FROM_VEHICLE_MODEL
         Make = make ?? "Unknown";
-        var model = Game.GetLocalizedString(NativeFunction.Natives.xB215AAC32D25D019<string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
+        
+        string model = Game.GetLocalizedString(NativeFunction.Natives.xB215AAC32D25D019<string>(Holder.Model.Hash)); // GET_DISPLAY_NAME_FROM_VEHICLE_MODEL
         Model = model ?? "Unknown";
         
         VehicleDataController.Database.Add(vehicle, this);
@@ -341,9 +342,10 @@ public class VehicleData
         {
             EVehicleOwnerType.Driver when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
             EVehicleOwnerType.FamilyMember when vehicle.Driver == null => EVehicleOwnerType.RandomPed,
-            EVehicleOwnerType.Passenger when vehicle.Passengers.Length == 0 => GetRandomOwnerType() == EVehicleOwnerType.Driver
-                ? EVehicleOwnerType.Driver
-                : EVehicleOwnerType.RandomPed,
+            EVehicleOwnerType.Passenger when vehicle.Passengers.Length == 0 =>
+                vehicle.Driver != null
+                    ? EVehicleOwnerType.Driver
+                    : EVehicleOwnerType.RandomPed,
             _ => ownerType
         };
     }
@@ -400,11 +402,11 @@ public class VehicleData
 
     private static string GetColorName(Color color)
     {
-        var h = color.GetHue();
-        var s = color.GetSaturation();
-        var b = color.GetBrightness();
+        float h = color.GetHue();
+        float s = color.GetSaturation();
+        float b = color.GetBrightness();
 
-        foreach (var (condition, name) in Colors)
+        foreach ((Func<float, float, float, bool> condition, string name) in Colors)
         {
             if (condition(h, s, b))
                 return name;

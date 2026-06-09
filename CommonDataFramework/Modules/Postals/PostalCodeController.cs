@@ -72,8 +72,19 @@ public static class PostalCodeController
 
     internal static void Load()
     {
+        if (!Directory.Exists(PostalXmlPath))
+        {
+            Game.DisplaySubtitle("~b~[CDF]~s~ Could ~r~not~s~ load any postal codes.");
+            return;
+        }
+        
         foreach (string filename in Directory.GetFiles(PostalXmlPath).Where(x => x.EndsWith(".xml")))
         {
+            if (!File.Exists(filename)) {
+                LogWarn($"Postal code file {filename} does not exist.");
+                continue;
+            }
+            
             PostalCodeSet postalCodeSet = PostalCodeSet.FromXML(filename);
             if (postalCodeSet != null)
             {
